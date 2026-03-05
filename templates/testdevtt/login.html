@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PulseFitness - Login / Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:linear-gradient(to right,#0b0f1a,#0f172a);color:white;overflow-x:hidden;}
+nav{display:flex;justify-content:space-between;align-items:center;padding:30px 80px; text-shadow: 0 5px 10px rgba(0,0,0,0.5); box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3); background-color: #0b0f1a; }
+.logo{font-size:28px;font-weight:800;color:#4c6fff;text-decoration:none;}
+.hero{min-height:85vh;display:flex;justify-content:space-between;align-items:center;padding:20px 80px 60px;}
+.left{max-width:650px;}
+.left h1{font-size:70px;font-weight:800;line-height:1.1;}
+.left h1 span{color:#4c6fff;}
+.left p{margin-top:25px;font-size:18px;color:#b0b3c0;}
+.login-card{background:#111827;padding:50px;border-radius:25px;width:420px;box-shadow:5px 0px 30px rgba(76,111,255,0.3);position:relative;transition:0.4s;}
+.login-card h2{text-align:center;margin-bottom:20px;}
+.role-buttons{transition:0.4s;}
+.role-buttons button{width:100%;padding:18px;margin-bottom:15px;border:none;border-radius:15px;font-size:16px;font-weight:600;cursor:pointer;transition:0.3s;}
+.client-btn{background:linear-gradient(90deg,#4c6fff,#7f5cff);color:white;}
+.trainer-btn{background:#1f2937;color:white;border:1px solid #333;}
+.role-buttons button:hover{transform:translateY(-4px);}
+.form{display:none;margin-top:20px;animation:fadeIn 0.6s ease forwards;}
+.form input{width:100%;padding:15px;margin:12px 0;background:#1f2937;border:1px solid #333;border-radius:12px;color:white;font-size:15px;}
+.form input:focus{outline:none;border:1px solid #4c6fff;}
+.form button{width:100%;padding:15px;margin-top:10px;background:#4c6fff;border:none;border-radius:12px;font-weight:600;cursor:pointer;transition:0.3s;}
+.form button:hover{background:#2f4dff;transform:translateY(-3px);}
+.extra{margin-top:15px;display:flex;justify-content:space-between;font-size:14px;color:#aaa;}
+.extra span{cursor:pointer;}
+.extra span:hover{color:#4c6fff;}
+#error{color:#ff4c4c;margin-top:10px;font-size:14px;}
+#success{color:#22c55e;margin-top:10px;font-size:14px;}
+@keyframes fadeIn{from{opacity:0; transform:translateY(20px);} to{opacity:1; transform:translateY(0);} }
+@media(max-width:1100px){.hero{flex-direction:column;text-align:center;}.left h1{font-size:50px;}.login-card{margin-top:40px;}}
+</style>
+</head>
+<body>
+
+<nav>
+    <a class="logo" href="{% url 'home' %}">PulseFitness</a>
+</nav>
+
+<section class="hero">
+<div class="left">
+    <h1>Stay <span>Fit</span> and <span>Healthy</span><br>with PulseFitness</h1>
+    <p>Select your role and log in or create a new account.</p>
+</div>
+
+<div class="login-card">
+    <h2>LOG IN</h2>
+
+    <form method="post" class="form" style="display: block;">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <p id="error" style="color:#ff4c4c;margin-top:10px;font-size:14px;">
+                {{ form.non_field_errors.0 }}
+            </p>
+        {% endif %}
+
+        <div>
+            <label for="id_username" style="display:block;margin-bottom:8px;color:#999;font-size:14px;">Username</label>
+            {{ form.username }}
+        </div>
+
+        <div>
+            <label for="id_password" style="display:block;margin-bottom:8px;color:#999;font-size:14px;margin-top:15px;">Password</label>
+            {{ form.password }}
+        </div>
+
+        <button type="submit" style="width:100%;padding:15px;margin-top:20px;background:#4c6fff;border:none;border-radius:12px;font-weight:600;cursor:pointer;transition:0.3s;color:white;">Log In</button>
+    </form>
+</div>
+</section>
+
+</body>
+</html>
