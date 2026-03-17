@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PulseFitness | Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        neon: {
+                            cyan: '#00f3ff',
+                            purple: '#b026ff',
+                            pink: '#ff0055',
+                            green: '#00ff88'
+                        },
+                        dark: {
+                            900: '#050505',
+                            800: '#0a0a0a',
+                            700: '#111111',
+                            600: '#1a1a1a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #ffffff;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f3ff;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .glass-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .text-gradient {
+            background: linear-gradient(to right, #00f3ff, #b026ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-link {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: #00f3ff;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-link:hover::before,
+        .sidebar-link.active::before {
+            transform: scaleY(1);
+        }
+        
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: rgba(0, 243, 255, 0.1);
+            color: #00f3ff;
+        }
+
+        .status-badge {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .table-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 243, 255, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00f3ff 0%, #00c8cc 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff0055 0%, #cc0044 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
+        }
+
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: #00f3ff;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+            outline: none;
+        }
+
+        .search-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .search-input:focus {
+            border-color: #00f3ff;
+            outline: none;
+        }
+
+        .notification-dot {
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+    option {
+            background: #1f2937;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-dark-900">
+        <div class="w-full max-w-md p-8">
+            <div class="glass-card rounded-2xl p-8">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple mb-4">
+                        <i class="fa-solid fa-shield-halved text-2xl text-black"></i>
+                    </div>
+                    <h1 class="font-display text-3xl font-bold">ADMIN <span class="text-neon-cyan">ACCESS</span></h1>
+                    <p class="text-gray-400 text-sm mt-2">PulseFitness Management System</p>
+                </div>
+                
+                <form onsubmit="handleAdminLogin(event)">
+                    <div class="mb-4">
+                        <label class="block text-gray-400 text-sm mb-2">Admin Email</label>
+                        <input type="email" id="adminEmail" class="form-input w-full px-4 py-3 rounded-lg" placeholder="admin@pulsefitness.com" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-400 text-sm mb-2">Password</label>
+                        <input type="password" id="adminPassword" class="form-input w-full px-4 py-3 rounded-lg" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="w-full btn-primary text-black font-bold py-3 rounded-lg">
+                        <i class="fa-solid fa-lock mr-2"></i>SECURE LOGIN
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-xs text-gray-500">Demo: admin@pulsefitness.com / admin123</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Admin Dashboard -->
+    <div id="adminDashboard" class="hidden">
+        <!-- Top Navigation -->
+        <nav class="fixed top-0 left-0 right-0 h-16 bg-dark-800/95 backdrop-blur-lg border-b border-white/10 z-40 flex items-center justify-between px-6">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="lg:hidden text-white hover:text-neon-cyan transition-colors">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <a href="#" class="font-display text-xl font-bold tracking-tighter flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-neon-cyan"></i>
+                    PULSE<span class="text-neon-cyan">FITNESS</span>
+                    <span class="text-xs bg-neon-purple/20 text-neon-purple px-2 py-0.5 rounded ml-2">ADMIN</span>
+                </a>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <!-- Search -->
+               
+                
+                <!-- Notifications -->
+                <button onclick="toggleNotifications()" class="relative text-gray-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-bell text-xl"></i>
+                    <span class="absolute -top-1 -right-1 w-5 h-5 bg-neon-pink rounded-full text-xs flex items-center justify-center notification-dot">3</span>
+                </button>
+                
+                <!-- Admin Profile -->
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <div class="text-sm font-medium">Admin User</div>
+                        <div class="text-xs text-gray-500">Super Admin</div>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-black font-bold">
+                        AU
+                    </div>
+                </div>
+                
+                <button onclick="logout()" class="text-gray-400 hover:text-neon-pink transition-colors">
+                    <i class="fa-solid fa-sign-out-alt text-xl"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Notifications Panel -->
+        <div id="notificationsPanel" class="fixed top-16 right-6 w-80 glass-card rounded-xl z-50 hidden max-h-96 overflow-y-auto">
+            <div class="p-4 border-b border-white/10 flex justify-between items-center">
+                <h3 class="font-bold">Notifications</h3>
+                <button onclick="markAllRead()" class="text-xs text-neon-cyan hover:underline">Mark all read</button>
+            </div>
+            <div id="notificationsList" class="divide-y divide-white/5">
+                <!-- Notifications populated by JS -->
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed left-0 top-16 bottom-0 w-64 bg-dark-800/95 backdrop-blur-lg border-r border-white/10 z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-y-auto">
+            <div class="p-6">
+                <div class="mb-8">
+                    <div class="text-xs text-gray-500 uppercase tracking-wider mb-4">Main Menu</div>
+                    <nav class="space-y-1">
+                        <!--
+                        <button onclick="showSection('overview')" class="sidebar-link active w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-gray-300">
+                            <i class="fa-solid fa-chart-pie w-5"></i> Overview
+                        </button>
+                        -->
+                        <button onclick="showSection('users')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-gray-300">
+                            <i class="fa-solid fa-users w-5"></i> Users
+                            <span class="ml-auto bg-neon-cyan/20 text-neon-cyan text-xs px-2 py-0.5 rounded-full" id="userCount">0</span>
+                        </button>
+                        <button onclick="showSection('trainers')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-gray-300">
+                            <i class="fa-solid fa-dumbbell w-5"></i> Trainers
+                        </button>
+                        <button onclick="showSection('workouts')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-gray-300">
+                            <i class="fa-solid fa-fire w-5"></i> Workout Programs
+                        </button>
+                        <button onclick="showSection('bookings')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-gray-300">
+                            <i class="fa-solid fa-calendar-check w-5"></i> Bookings
+                            <span class="ml-auto bg-neon-pink/20 text-neon-pink text-xs px-2 py-0.5 rounded-full" id="bookingCount">0</span>
+                        </button>
+                    </nav>
+                </div>
+               <!--
+                <div class="mb-8">
+                    <div class="text-xs text-gray-500 uppercase tracking-wider mb-4">Analytics</div>
+                    <nav class="space-y-1">
+                        <button onclick="showSection('reports')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-gray-300">
+                            <i class="fa-solid fa-file-chart-column w-5"></i> Reports
+                        </button>
+                        <button onclick="showSection('finance')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-gray-300">
+                            <i class="fa-solid fa-dollar-sign w-5"></i> Finance
+                        </button>
+                    </nav>
+                </div>
+                -->
+                <div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wider mb-4">System</div>
+                    <nav class="space-y-1">
+                        <button onclick="showSection('settings')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 text-gray-300">
+                            <i class="fa-solid fa-gear w-5"></i> Settings
+                        </button>
+                        
+                    </nav>
+                </div>
+            </div>
+        </aside>
+
+        
+        <main class="lg:ml-64 pt-16 min-h-screen">
+            <div class="p-6">
+
+                <div id="section-overview" class="admin-section">
+                    <div class="mb-8">
+                        <h1 class="font-display text-3xl font-bold mb-2">Dashboard <span class="text-gradient">Overview</span></h1>
+                        <p class="text-gray-400">Welcome back! Here's what's happening at PulseFitness.</p>
+                    </div>
+
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="stat-card glass-card p-6 rounded-2xl">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-neon-cyan/20 flex items-center justify-center">
+                                    <i class="fa-solid fa-users text-neon-cyan text-xl"></i>
+                                </div>
+                                <span class="text-neon-green text-sm flex items-center gap-1">
+                                    <i class="fa-solid fa-arrow-up"></i> 12%
+                                </span>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" id="totalUsers">0</div>
+                            <div class="text-gray-400 text-sm">Total Members</div>
+                        </div>
+                        
+                        <div class="stat-card glass-card p-6 rounded-2xl">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-neon-purple/20 flex items-center justify-center">
+                                    <i class="fa-solid fa-dumbbell text-neon-purple text-xl"></i>
+                                </div>
+                                <span class="text-neon-green text-sm flex items-center gap-1">
+                                    <i class="fa-solid fa-arrow-up"></i> 8%
+                                </span>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" id="activeTrainers">0</div>
+                            <div class="text-gray-400 text-sm">Active Trainers</div>
+                        </div>
+                        
+                        <div class="stat-card glass-card p-6 rounded-2xl">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-neon-pink/20 flex items-center justify-center">
+                                    <i class="fa-solid fa-calendar-check text-neon-pink text-xl"></i>
+                                </div>
+                                <span class="text-neon-green text-sm flex items-center gap-1">
+                                    <i class="fa-solid fa-arrow-up"></i> 23%
+                                </span>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" id="todayBookings">0</div>
+                            <div class="text-gray-400 text-sm">Today's Bookings</div>
+                        </div>
+                        
+                        <div class="stat-card glass-card p-6 rounded-2xl">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-neon-green/20 flex items-center justify-center">
+                                    <i class="fa-solid fa-dollar-sign text-neon-green text-xl"></i>
+                                </div>
+                                <span class="text-neon-green text-sm flex items-center gap-1">
+                                    <i class="fa-solid fa-arrow-up"></i> 15%
+                                </span>
+                            </div>
+                            <div class="text-3xl font-bold mb-1" id="monthlyRevenue">$0</div>
+                            <div class="text-gray-400 text-sm">Monthly Revenue</div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="grid lg:grid-cols-2 gap-6 mb-8">
+                        <div class="glass-card p-6 rounded-2xl">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-bold text-lg">Member Growth</h3>
+                                <select class="bg-dark-700 border border-white/10 rounded-lg px-3 py-1 text-sm">
+                                    <option>Last 7 Days</option>
+                                    <option>Last 30 Days</option>
+                                    <option>Last 3 Months</option>
+                                </select>
+                            </div>
+                            <canvas id="memberChart" height="200"></canvas>
+                        </div>
+                        
+                        <div class="glass-card p-6 rounded-2xl">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-bold text-lg">Revenue Overview</h3>
+                                <select class="bg-dark-700 border border-white/10 rounded-lg px-3 py-1 text-sm">
+                                    <option>This Month</option>
+                                    <option>Last Month</option>
+                                    <option>This Year</option>
+                                </select>
+                            </div>
+                            <canvas id="revenueChart" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="grid lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 glass-card p-6 rounded-2xl">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-bold text-lg">Recent Activity</h3>
+                                <button class="text-neon-cyan text-sm hover:underline">View All</button>
+                            </div>
+                            <div id="recentActivity" class="space-y-4">
+                                
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card p-6 rounded-2xl">
+                            <h3 class="font-bold text-lg mb-6">Quick Actions</h3>
+                            <div class="space-y-3">
+                                <button onclick="openModal('addUser')" class="w-full p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors flex items-center gap-3 text-left">
+                                    <div class="w-10 h-10 rounded-lg bg-neon-cyan/20 flex items-center justify-center text-neon-cyan">
+                                        <i class="fa-solid fa-user-plus"></i>
+                                    </div>
+                                    <!-- <div>
+                                        <div class="font-medium">Add Member</div>
+                                        <div class="text-xs text-gray-400">Create new user account</div>
+                                    </div> -->
+                                </button>
+                                
+                                <button onclick="openModal('addTrainer')" class="w-full p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors flex items-center gap-3 text-left">
+                                    <div class="w-10 h-10 rounded-lg bg-neon-purple/20 flex items-center justify-center text-neon-purple">
+                                        <i class="fa-solid fa-user-tie"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium">Add Trainer</div>
+                                        <div class="text-xs text-gray-400">Onboard new trainer</div>
+                                    </div>
+                                </button>
+                                
+                                <button onclick="openModal('createWorkout')" class="w-full p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors flex items-center gap-3 text-left">
+                                    <div class="w-10 h-10 rounded-lg bg-neon-pink/20 flex items-center justify-center text-neon-pink">
+                                        <i class="fa-solid fa-fire"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-medium">Create Program</div>
+                                        <div class="text-xs text-gray-400">Design new workout plan</div>
+                                    </div>
+                                </button>
+                                
+                               
+                            </div>
+                        </div>  
+                    </div>
+                </div>
+                
+
+                <!-- Section: Users -->
+                <div id="section-users" class="admin-section hidden">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold mb-2">Member <span class="text-neon-cyan">Management</span></h1>
+                            <p class="text-gray-400">Manage all registered members and their accounts.</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <!-- <button onclick="openModal('addUser')" class="btn-primary text-black px-6 py-3 rounded-lg font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i> Add Member
+                            </button> -->
+                           
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="glass-card p-4 rounded-xl mb-6 flex flex-wrap gap-4">
+                        <div class="flex-1 min-w-64">
+                            <div class="relative">
+                                <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                                <input type="text" id="userSearch" onkeyup="filterUsers()" placeholder="Search by name, email..." class="search-input w-full pl-12 pr-4 py-3 rounded-lg">
+                            </div>
+                        </div>
+                        <select id="userStatusFilter" onchange="filterUsers()" class="bg-dark-700 border border-white/10 rounded-lg px-4 py-3">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                        <select id="userPlanFilter" onchange="filterUsers()" class="bg-dark-700 border border-white/10 rounded-lg px-4 py-3">
+                            <option value="all">All Plans</option>
+                            <option value="basic">Basic</option>
+                            <option value="premium">Premium</option>
+                            <option value="elite">Elite</option>
+                        </select>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div class="glass-card rounded-2xl overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-white/5">
+                                    <tr>
+                                        <th class="text-left px-6 py-4 font-medium text-gray-400">Member</th>
+                                        <th class="text-left px-6 py-4 font-medium text-gray-400">Plan</th>
+                                        <th class="text-left px-6 py-4 font-medium text-gray-400">Status</th>
+                                        <th class="text-left px-6 py-4 font-medium text-gray-400">Joined</th>
+                                        <th class="text-left px-6 py-4 font-medium text-gray-400">Last Active</th>
+                                        <th class="text-left px-6 py-4 font-medium text-gray-400">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody" class="divide-y divide-white/5">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="p-4 border-t border-white/10 flex justify-between items-center">
+                            <span class="text-gray-400 text-sm">Showing <span id="showingUsers">0</span> of <span id="totalUsersCount">0</span> members</span>
+                            <div class="flex gap-2">
+                                <button class="px-4 py-2 border border-white/20 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50" disabled>Previous</button>
+                                <button class="px-4 py-2 border border-white/20 rounded-lg hover:bg-white/5 transition-colors">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Trainers -->
+                <div id="section-trainers" class="admin-section hidden">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold mb-2">Trainer <span class="text-neon-purple">Management</span></h1>
+                            <p class="text-gray-400">Manage trainers and their schedules.</p>
+                        </div>
+                        <button onclick="openModal('addTrainer')" class="btn-primary text-black px-6 py-3 rounded-lg font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add Trainer
+                        </button>
+                    </div>
+
+                    <div id="trainersGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Section: Workouts -->
+                <div id="section-workouts" class="admin-section hidden">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold mb-2">Workout <span class="text-neon-pink">Programs</span></h1>
+                            <p class="text-gray-400">Manage workout plans and exercise libraries.</p>
+                        </div>
+                        <button onclick="openModal('createWorkout')" class="btn-primary text-black px-6 py-3 rounded-lg font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Create Program
+                        </button>
+                    </div>
+
+                    <div id="workoutsList" class="space-y-4">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Section: Bookings -->
+                <div id="section-bookings" class="admin-section hidden">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold mb-2">Session <span class="text-neon-green">Bookings</span></h1>
+                            <p class="text-gray-400">Manage member bookings and appointments.</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="filterBookings('all')" class="px-4 py-2 bg-neon-cyan/20 text-neon-cyan rounded-lg font-medium">All</button>
+                            <button onclick="filterBookings('pending')" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg font-medium">Pending</button>
+                            <button onclick="filterBookings('confirmed')" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg font-medium">Confirmed</button>
+                        </div>
+                    </div>
+
+                    <div id="bookingsList" class="space-y-4">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Section: Reports -->
+                <div id="section-reports" class="admin-section hidden">
+                    <div class="mb-8">
+                        <h1 class="font-display text-3xl font-bold mb-2">Analytics <span class="text-gradient">Reports</span></h1>
+                        <p class="text-gray-400">Detailed insights and performance metrics.</p>
+                    </div>
+
+                    <div class="grid lg:grid-cols-2 gap-6 mb-8">
+                        <div class="glass-card p-6 rounded-2xl">
+                            <h3 class="font-bold text-lg mb-4">Membership Distribution</h3>
+                            <canvas id="membershipChart" height="250"></canvas>
+                        </div>
+                        <div class="glass-card p-6 rounded-2xl">
+                            <h3 class="font-bold text-lg mb-4">Trainer Performance</h3>
+                            <canvas id="trainerChart" height="250"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="font-bold text-lg mb-4">Monthly Statistics</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-white/5">
+                                    <tr>
+                                        <th class="text-left px-6 py-4 font-medium text-gray-400">Month</th>
+                                        <th class="text-left px-6 py-4 font-medium text-gray-400">New Members</th>
+                                        <th class="text-left px-6 py-4 font-medium text-gray-400">Active Sessions</th>
+                                        <th class="text-left px-6 py-4 font-medium text-gray-400">Revenue</th>
+                                        <th class="text-left px-6 py-4 font-medium text-gray-400">Retention</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monthlyStatsBody" class="divide-y divide-white/5">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Settings -->
+                <div id="section-settings" class="admin-section hidden">
+                    <div class="mb-8">
+                        <h1 class="font-display text-3xl font-bold mb-2">System <span class="text-neon-cyan">Settings</span></h1>
+                        <p class="text-gray-400">Configure platform settings and preferences.</p>
+                    </div>
+
+                    <div class="grid lg:grid-cols-2 gap-6">
+                        <div class="glass-card p-6 rounded-2xl">
+                            <h3 class="font-bold text-lg mb-6">General Settings</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-400 text-sm mb-2">Gym Name</label>
+                                    <input type="text" value="PulseFitness" class="form-input w-full px-4 py-3 rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-400 text-sm mb-2">Contact Email</label>
+                                    <input type="email" value="contact@pulsefitness.com" class="form-input w-full px-4 py-3 rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-400 text-sm mb-2">Timezone</label>
+                                    <select class="form-input w-full px-4 py-3 rounded-lg">
+                                        <option>UTC-8 (Pacific)</option>
+                                        <option>UTC-5 (Eastern)</option>
+                                        <option>UTC+0 (GMT)</option>
+                                        <option>UTC+1 (CET)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-2xl">
+                            <h3 class="font-bold text-lg mb-6">Notification Settings</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+                                    <div>
+                                        <div class="font-medium">Email Notifications</div>
+                                        <div class="text-sm text-gray-400">Send email alerts for new bookings</div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-700 peer-focus:ring-2 peer-focus:ring-neon-cyan rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-cyan"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+                                    <div>
+                                        <div class="font-medium">SMS Alerts</div>
+                                        <div class="text-sm text-gray-400">Send SMS for urgent updates</div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-700 peer-focus:ring-2 peer-focus:ring-neon-cyan rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-cyan"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+                                    <div>
+                                        <div class="font-medium">Push Notifications</div>
+                                        <div class="text-sm text-gray-400">Browser push notifications</div>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" checked class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-700 peer-focus:ring-2 peer-focus:ring-neon-cyan rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-cyan"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <button onclick="saveSettings()" class="btn-primary text-black px-8 py-3 rounded-lg font-bold">
+                            <i class="fa-solid fa-save mr-2"></i>Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modalOverlay" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+        <!-- Add User Modal -->
+        <div id="addUserModal" class="modal-content glass-card rounded-2xl w-full max-w-lg hidden max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center">
+                <h3 class="font-display text-xl font-bold">Add New Member</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">First Name</label>
+                        <input type="text" id="newUserFirstName" class="form-input w-full px-4 py-3 rounded-lg" placeholder="John">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">Last Name</label>
+                        <input type="text" id="newUserLastName" class="form-input w-full px-4 py-3 rounded-lg" placeholder="Doe">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-sm mb-2">Email</label>
+                    <input type="email" id="newUserEmail" class="form-input w-full px-4 py-3 rounded-lg" placeholder="john@example.com">
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-sm mb-2">Phone</label>
+                    <input type="tel" id="newUserPhone" class="form-input w-full px-4 py-3 rounded-lg" placeholder="+1 234 567 890">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">Membership Plan</label>
+                        <select id="newUserPlan" class="form-input w-full px-4 py-3 rounded-lg">
+                            <option value="basic">Basic</option>
+                            <option value="premium">Premium</option>
+                            <option value="elite">Elite</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">Status</label>
+                        <select id="newUserStatus" class="form-input w-full px-4 py-3 rounded-lg">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-white/10 flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-6 py-3 border border-white/20 rounded-lg hover:bg-white/5 transition-colors">Cancel</button>
+                <button onclick="saveNewUser()" class="btn-primary text-black px-6 py-3 rounded-lg font-bold">Create Member</button>
+            </div>
+        </div>
+
+        <!-- Add Trainer Modal -->
+        <div id="addTrainerModal" class="modal-content glass-card rounded-2xl w-full max-w-lg hidden max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center">
+                <h3 class="font-display text-xl font-bold">Add New Trainer</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-gray-400 text-sm mb-2">Full Name</label>
+                    <input type="text" id="newTrainerName" class="form-input w-full px-4 py-3 rounded-lg" placeholder="Trainer Name">
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-sm mb-2">Email</label>
+                    <input type="email" id="newTrainerEmail" class="form-input w-full px-4 py-3 rounded-lg" placeholder="trainer@pulsefitness.com">
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-sm mb-2">Specialty</label>
+                    <select id="newTrainerSpecialty" class="form-input w-full px-4 py-3 rounded-lg">
+                        <option value="strength">Strength Training</option>
+                        <option value="cardio">Cardio / HIIT</option>
+                        <option value="yoga">Yoga / Mobility</option>
+                        <option value="bodybuilding">Bodybuilding</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-sm mb-2">Bio</label>
+                    <textarea id="newTrainerBio" rows="3" class="form-input w-full px-4 py-3 rounded-lg" placeholder="Brief description..."></textarea>
+                </div>
+            </div>
+            <div class="p-6 border-t border-white/10 flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-6 py-3 border border-white/20 rounded-lg hover:bg-white/5 transition-colors">Cancel</button>
+                <button onclick="saveNewTrainer()" class="btn-primary text-black px-6 py-3 rounded-lg font-bold">Add Trainer</button>
+            </div>
+        </div>
+
+        <!-- Create Workout Modal -->
+        <div id="createWorkoutModal" class="modal-content glass-card rounded-2xl w-full max-w-2xl hidden max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center">
+                <h3 class="font-display text-xl font-bold">Create Workout Program</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-gray-400 text-sm mb-2">Program Name</label>
+                    <input type="text" id="workoutName" class="form-input w-full px-4 py-3 rounded-lg" placeholder="e.g., Shred Protocol">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">Category</label>
+                        <select id="workoutCategory" class="form-input w-full px-4 py-3 rounded-lg">
+                            <option value="cardio">Cardio</option>
+                            <option value="strength">Strength</option>
+                            <option value="hiit">HIIT</option>
+                            <option value="flexibility">Flexibility</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm mb-2">Duration (minutes)</label>
+                        <input type="number" id="workoutDuration" class="form-input w-full px-4 py-3 rounded-lg" placeholder="30">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-sm mb-2">Description</label>
+                    <textarea id="workoutDescription" rows="3" class="form-input w-full px-4 py-3 rounded-lg" placeholder="Program description..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-400 text-sm mb-2">Exercises</label>
+                    <div id="exerciseList" class="space-y-2">
+                        <div class="flex gap-2">
+                            <input type="text" class="form-input flex-1 px-4 py-2 rounded-lg" placeholder="Exercise name">
+                            <input type="text" class="form-input w-24 px-4 py-2 rounded-lg" placeholder="Sets">
+                            <input type="text" class="form-input w-24 px-4 py-2 rounded-lg" placeholder="Reps">
+                        </div>
+                    </div>
+                    <button onclick="addExerciseField()" class="mt-2 text-neon-cyan text-sm hover:underline">
+                        <i class="fa-solid fa-plus"></i> Add Exercise
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 border-t border-white/10 flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-6 py-3 border border-white/20 rounded-lg hover:bg-white/5 transition-colors">Cancel</button>
+                <button onclick="saveWorkout()" class="btn-primary text-black px-6 py-3 rounded-lg font-bold">Create Program</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 glass-card px-6 py-4 rounded-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3">
+        <i id="toastIcon" class="fa-solid fa-check-circle text-neon-green"></i>
+        <span id="toastMessage">Operation successful</span>
+    </div>
+
+    <script>
+        // Data Store
+        let users = [
+            { id: 1, firstName: 'Jasper ', lastName: 'Ray', email: 'jaspercute@gmail.com', phone: '+1 234 567 890', plan: 'premium', status: 'active', joined: '2026-01-15', lastActive: '2 hours ago' },
+            { id: 2, firstName: 'Leenard', lastName: 'Caducio', email: 'leenardcute@gmail.com', phone: '+1 234 567 892', plan: 'basic', status: 'inactive', joined: '2026-01-20', lastActive: '3 days ago' },
+            { id: 3, firstName: 'Vince', lastName: 'Lavado', email: 'vincecute@gmail.com', phone: '+1 234 567 893', plan: 'premium', status: 'active', joined: '2026-02-10', lastActive: '1 hour ago' },
+            { id: 4, firstName: 'Quiel', lastName: 'Randolf', email: 'Quielcute@gmail.com', phone: '+1 234 567 894', plan: 'basic', status: 'active', joined: '2026-03-01', lastActive: '30 minutes ago' },
+            { id: 5, firstName: 'Aaron', lastName: 'Laureles', email: 'Aaroncute@gmail.com', phone: '+1 234 567 894', plan: 'elite', status: 'active', joined: '2026-03-16', lastActive: '28 minutes ago' },
+            { id: 6, firstName: 'Carl', lastName: 'Alcazar', email: 'Carlcute@gmail.com', phone: '+1 234 567 894', plan: 'elite', status: 'active', joined: '2026-03-16', lastActive: '15 minutes ago' },
+            { id: 7, firstName: 'Ace', lastName: 'Campos', email: 'Acecute@gmail.com', phone: '+1 234 567 894', plan: 'premium', status: 'active', joined: '2026-03-16', lastActive: '8 minutes ago' },
+            { id: 8, firstName: 'Joshua', lastName: 'Vaynix', email: 'Joshuacute@gmail.com', phone: '+1 234 567 894', plan: 'elite', status: 'active', joined: '2026-03-16', lastActive: '5 minutes ago' },
+            { id: 9, firstName: 'Jester', lastName: 'Idol', email: 'welearntomovewemovetolearn@gmail.com', phone: '+1 234 567 894', plan: 'premium', status: 'inactive', joined: '2026-03-16', lastActive: '5 minutes ago' },
+            { id: 10, firstName: 'Arlon', lastName: 'Norla', email: 'Arloncute@gmail.com', phone: '+1 234 567 894', plan: 'elite', status: 'active', joined: '2026-03-16', lastActive: 'Just now' },
+            { id: 11, firstName: 'Rya', lastName: 'Cachuela', email: 'Ryacute@gmail.com', phone: '+1 234 567 894', plan: 'basic', status: 'active', joined: '2026-03-16', lastActive: 'Just now' },
+            { id: 12, firstName: 'Abi', lastName: 'Creake', email: 'Abicute@gmail.com', phone: '+1 234 567 894', plan: 'premium', status: 'active', joined: '2026-03-16', lastActive: 'Just now' },
+            { id: 13, firstName: 'Gerlyn', lastName: 'Creake', email: 'Gerlyncute@gmail.com', phone: '+1 234 567 894', plan: 'elite', status: 'active', joined: '2026-03-16', lastActive: 'Just now' },
+            { id: 14, firstName: 'Althea', lastName: 'Creake', email: 'Altheacute@gmail.com', phone: '+1 234 567 894', plan: 'basic', status: 'active', joined: '2026-03-16', lastActive: 'Just now' },
+            { id: 15, firstName: 'Bry', lastName: 'Balboa', email: 'Diwatacute@gmail.com', phone: '+1 234 567 894', plan: 'premium', status: 'active', joined: '2026-03-16', lastActive: '69 Days ago' },
+
+        ];
+
+        let trainers = [
+            { id: 1, name: "Aron 'The Destroyer' Jay", email: 'aron@pulsefitness.com', specialty: 'strength', specialtyLabel: 'POWERLIFTING', bio: 'Specialist in strength training with 10+ years experience.', available: true, sessions: 45, rating: 4.9 },
+            { id: 2, name: "Justin 'The Smasher' Kerby", email: 'justin@pulsefitness.com', specialty: 'cardio', specialtyLabel: 'HIIT SPECIALIST', bio: 'High-intensity interval training expert.', available: true, sessions: 38, rating: 4.8 },
+            { id: 3, name: "Jan 'Muscle Man' Marco", email: 'marco@pulsefitness.com', specialty: 'bodybuilding', specialtyLabel: 'BODYBUILDING', bio: 'Bodybuilding coach focused on hypertrophy.', available: false, sessions: 52, rating: 4.7 },
+            { id: 4, name: "Rhen 'Eruption' Lewis", email: 'rhen@pulsefitness.com', specialty: 'yoga', specialtyLabel: 'YOGA & MOBILITY', bio: 'Yoga instructor and mobility specialist.', available: true, sessions: 29, rating: 5.0 },
+        ];
+
+        let bookings = [
+            { id: 1, member: 'jasper Ray', trainer: 'Aron Jay', date: '2026-01-15', time: '10:00 AM', status: 'confirmed', type: 'Personal Training' },
+            { id: 2, member: 'Mia Carlos', trainer: 'Rhen Lewis', date: '2026-03-17', time: '2:00 PM', status: 'pending', type: 'Yoga Session' },
+            { id: 3, member: 'Leenard Caducio', trainer: 'Justin Kerby', date: '2026-01-20', time: '8:00 AM', status: 'confirmed', type: 'HIIT Class' },
+            { id: 4, member: 'Vince Lavado', trainer: 'Justin Kerby', date: '2026-03-18', time: '9:00 PM', status: 'confirmed', type: 'HIIT Class' },
+            { id: 5, member: 'Quiel Randolf', trainer: 'Jan Marco', date: '2026-03-13', time: '11:00 PM', status: 'confirmed', type: 'Hypertrophy Training' },
+            { id: 6, member: 'Aaron Laureles',  trainer: 'Aron Jay', date: '2026-03-12', time: '2:00 PM', status: 'confirmed', type: 'Strength Training'},
+            { id: 7, member: 'Carl Alcazar',trainer: 'Justin Kerby', date: '2026-03-19', time: '6:00 PM', status: 'confirmed', type: 'HIIT Class'},
+            { id: 8, member: 'Ace Campos', trainer: 'Rhen Lewis', date: '2026-03-19', time: '7:00 PM', status: 'confirmed', type: 'Yoga Session' },
+            { id: 9, member: 'Joshua Vaynix', trainer: 'Jan Marco', date: '2026-03-18', time: '4:00 PM', status: 'confirmed', type: 'Hypertrophy Training' },
+            { id: 10, member: 'Jester Idol',trainer: 'Jan Marco', date: '2026-03-18', time: '9:00 PM', status: 'confirmed', type: 'Hypertrophy Training' },
+            { id: 11, member: 'Annie Dominguez',trainer: 'Rhen Lewis', date: '2026-03-16', time: '3:00 PM', status: 'pending', type: 'Yoga Session'},
+            { id: 12, member: 'Arlon Norla', trainer: 'Aron Jay', date: '2026-03-16', time: '4:00 PM', status: 'confirmed', type: 'Strength Training' },
+            { id: 13, member: 'Rya Cachuela', trainer: 'Rhen Lewis', date: '2026-03-16', time: '1:00 PM', status: 'confirmed', type: 'Yoga Session' },
+            { id: 14, member: 'Abi Creake', trainer: 'Aron Jay', date: '2026-03-16', time: '11:00 AM', status: 'confirmed', type: 'Strength Training' },
+            { id: 15, member: 'Gerlyn Creake', trainer: 'Jan Marco', date: '2026-03-16', time: '12:00 PM', status: 'confirmed', type: 'Hypertrophy Training' },
+            { id: 16, member: 'Althea Creake', trainer: 'Aron Jay', date: '2026-03-16', time: '6:00 PM', status: 'confirmed', type: 'Strength Training' },
+            { id: 17, member: 'Bry Balboa', trainer: 'Jan Marco', date: '2026-03-16', time: '3:00 PM', status: 'confirmed', type: 'Hypertrophy Training' },
+             { id: 18, member: 'Reymond Esteves', trainer: 'Jan Marco', date: '2026-03-18', time: '1:00 PM', status: 'pending', type: 'Hypertrophy Training' },
+
+        ];
+
+        let workouts = [
+            { id: 1, name: 'Shred Protocol', category: 'cardio', duration: 45, exercises: 8, enrolled: 4, description: 'High intensity metabolic conditioning for rapid fat loss.' },
+            { id: 2, name: 'Hypertrophy X', category: 'strength', duration: 60, exercises: 12, enrolled: 7, description: 'Maximum muscle growth through periodized overload.' },
+            { id: 3, name: 'Athlete Rebuild', category: 'flexibility', duration: 30, exercises: 6, enrolled: 3, description: 'Mobility and functional strength for longevity.' },
+            { id: 4, name: 'HIIT Cardio Blast', category: 'hiit', duration: 30, exercises: 10, enrolled: 5, description: 'High-intensity intervals for maximum calorie burn.' },
+        ];
+
+        let notifications = [
+            { id: 1, message: 'New booking from Mia Carlos', time: '5 minutes ago', read: false, type: 'booking' },
+            { id: 2, message: 'Trainer Marco updated availability', time: '1 hour ago', read: false, type: 'trainer' },
+            { id: 3, message: 'New member registration: Quiel Randolf', time: '2 hours ago', read: false, type: 'user' },
+        ];
+
+        // Charts
+        let memberChart, revenueChart, membershipChart, trainerChart;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+            renderUsers();
+            renderTrainers();
+            renderWorkouts();
+            renderBookings();
+            renderNotifications();
+            renderRecentActivity();
+            renderMonthlyStats();
+            initCharts();
+        });
+
+        // Admin Login
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            if (email === 'admin@pulsefitness.com' && password === 'admin123') {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                showToast('Welcome back, Admin!', 'success');
+            } else {
+                showToast('Invalid credentials. Try admin@pulsefitness.com / admin123', 'error');
+            }
+        }
+
+        function logout() {
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('adminEmail').value = '';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        // Navigation
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.admin-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('section-' + section).classList.remove('hidden');
+            
+            document.querySelectorAll('.sidebar-link').forEach(el => {
+                el.classList.remove('active', 'text-neon-cyan');
+                el.classList.add('text-gray-300');
+            });
+            event.target.classList.add('active', 'text-neon-cyan');
+            event.target.classList.remove('text-gray-300');
+            
+            // Close sidebar on mobile
+            if (window.innerWidth < 1024) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
+        }
+
+        // Stats
+        function updateStats() {
+            document.getElementById('totalUsers').textContent = users.length;
+            document.getElementById('userCount').textContent = users.length;
+            document.getElementById('activeTrainers').textContent = trainers.filter(t => t.available).length;
+            document.getElementById('todayBookings').textContent = bookings.length;
+            document.getElementById('bookingCount').textContent = bookings.filter(b => b.status === 'pending').length;
+            document.getElementById('monthlyRevenue').textContent = '$' + (users.length * 49 + 2450).toLocaleString();
+        }
+
+        // Users
+        function renderUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            
+            users.forEach(user => {
+                const planColors = { basic: 'bg-gray-500/20 text-gray-400', premium: 'bg-neon-cyan/20 text-neon-cyan', elite: 'bg-neon-purple/20 text-neon-purple' };
+                const statusColors = { active: 'bg-neon-green/20 text-neon-green', inactive: 'bg-gray-500/20 text-gray-400' };
+                
+                tbody.innerHTML += `
+                    <tr class="table-row transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-black font-bold text-sm">
+                                    ${user.firstName[0]}${user.lastName[0]}
+                                </div>
+                                <div>
+                                    <div class="font-medium">${user.firstName} ${user.lastName}</div>
+                                    <div class="text-sm text-gray-400">${user.email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium ${planColors[user.plan]}">${user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColors[user.status]}">${user.status.charAt(0).toUpperCase() + user.status.slice(1)}</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-400">${user.joined}</td>
+                        <td class="px-6 py-4 text-gray-400">${user.lastActive}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex gap-2">
+                                <button onclick="editUser(${user.id})" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-neon-cyan/20 hover:text-neon-cyan transition-colors flex items-center justify-center">
+                                    <i class="fa-solid fa-pen text-sm"></i>
+                                </button>
+                                <button onclick="deleteUser(${user.id})" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-neon-pink/20 hover:text-neon-pink transition-colors flex items-center justify-center">
+                                    <i class="fa-solid fa-trash text-sm"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('showingUsers').textContent = users.length;
+            document.getElementById('totalUsersCount').textContent = users.length;
+        }
+
+        function filterUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const status = document.getElementById('userStatusFilter').value;
+            const plan = document.getElementById('userPlanFilter').value;
+            
+            const filtered = users.filter(u => {
+                const matchSearch = u.firstName.toLowerCase().includes(search) || 
+                                   u.lastName.toLowerCase().includes(search) || 
+                                   u.email.toLowerCase().includes(search);
+                const matchStatus = status === 'all' || u.status === status;
+                const matchPlan = plan === 'all' || u.plan === plan;
+                return matchSearch && matchStatus && matchPlan;
+            });
+            
+            // Re-render with filtered data (simplified for demo)
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+            filtered.forEach(user => {
+                const planColors = { basic: 'bg-gray-500/20 text-gray-400', premium: 'bg-neon-cyan/20 text-neon-cyan', elite: 'bg-neon-purple/20 text-neon-purple' };
+                const statusColors = { active: 'bg-neon-green/20 text-neon-green', inactive: 'bg-gray-500/20 text-gray-400' };
+                
+                tbody.innerHTML += `
+                    <tr class="table-row transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-black font-bold text-sm">
+                                    ${user.firstName[0]}${user.lastName[0]}
+                                </div>
+                                <div>
+                                    <div class="font-medium">${user.firstName} ${user.lastName}</div>
+                                    <div class="text-sm text-gray-400">${user.email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium ${planColors[user.plan]}">${user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColors[user.status]}">${user.status.charAt(0).toUpperCase() + user.status.slice(1)}</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-400">${user.joined}</td>
+                        <td class="px-6 py-4 text-gray-400">${user.lastActive}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex gap-2">
+                                <button onclick="editUser(${user.id})" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-neon-cyan/20 hover:text-neon-cyan transition-colors flex items-center justify-center">
+                                    <i class="fa-solid fa-pen text-sm"></i>
+                                </button>
+                                <button onclick="deleteUser(${user.id})" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-neon-pink/20 hover:text-neon-pink transition-colors flex items-center justify-center">
+                                    <i class="fa-solid fa-trash text-sm"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById('showingUsers').textContent = filtered.length;
+        }
+
+        function deleteUser(id) {
+            if (confirm('Are you sure you want to delete this member?')) {
+                users = users.filter(u => u.id !== id);
+                renderUsers();
+                updateStats();
+                showToast('Member deleted successfully', 'success');
+            }
+        }
+
+        function editUser(id) {
+            showToast('Edit feature coming soon!', 'info');
+        }
+
+        function exportUsers() {
+            showToast('Exporting users to CSV...', 'success');
+        }
+
+        // Trainers
+        function renderTrainers() {
+            const container = document.getElementById('trainersGrid');
+            container.innerHTML = '';
+            
+            const specialtyColors = {
+                strength: 'blue',
+                cardio: 'purple',
+                yoga: 'pink',
+                bodybuilding: 'green'
+            };
+            
+            trainers.forEach(trainer => {
+                const color = specialtyColors[trainer.specialty];
+                container.innerHTML += `
+                    <div class="glass-card p-6 rounded-2xl">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-16 h-16 rounded-full bg-${color}-500/20 flex items-center justify-center">
+                                <i class="fa-solid fa-user text-2xl text-${color}-400"></i>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs ${trainer.available ? 'bg-neon-green/20 text-neon-green' : 'bg-gray-500/20 text-gray-400'}">
+                                ${trainer.available ? 'Available' : 'Unavailable'}
+                            </span>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1">${trainer.name}</h3>
+                        <p class="text-${color}-400 text-sm mb-3">${trainer.specialtyLabel}</p>
+                        <p class="text-gray-400 text-sm mb-4">${trainer.bio}</p>
+                        <div class="flex items-center justify-between text-sm mb-4">
+                            <span class="text-gray-400"><i class="fa-solid fa-star text-yellow-400 mr-1"></i>${trainer.rating}</span>
+                            <span class="text-gray-400"><i class="fa-solid fa-calendar mr-1"></i>${trainer.sessions} sessions</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editTrainer(${trainer.id})" class="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm font-medium transition-colors">Edit</button>
+                            <button onclick="toggleTrainerStatus(${trainer.id})" class="flex-1 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm font-medium transition-colors">
+                                ${trainer.available ? 'Disable' : 'Enable'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleTrainerStatus(id) {
+            const trainer = trainers.find(t => t.id === id);
+            trainer.available = !trainer.available;
+            renderTrainers();
+            updateStats();
+            showToast(`Trainer ${trainer.available ? 'enabled' : 'disabled'}`, 'success');
+        }
+
+        function editTrainer(id) {
+            showToast('Edit trainer feature coming soon!', 'info');
+        }
+
+        // Workouts
+        function renderWorkouts() {
+            const container = document.getElementById('workoutsList');
+            container.innerHTML = '';
+            
+            const categoryColors = {
+                cardio: 'text-neon-cyan',
+                strength: 'text-neon-purple',
+                hiit: 'text-neon-pink',
+                flexibility: 'text-neon-green'
+            };
+            
+            workouts.forEach(workout => {
+                container.innerHTML += `
+                    <div class="glass-card p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center">
+                                <i class="fa-solid fa-dumbbell text-2xl ${categoryColors[workout.category]}"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">${workout.name}</h3>
+                                <p class="text-gray-400 text-sm">${workout.description}</p>
+                                <div class="flex gap-4 mt-2 text-sm text-gray-500">
+                                    <span><i class="fa-regular fa-clock mr-1"></i>${workout.duration} min</span>
+                                    <span><i class="fa-solid fa-list mr-1"></i>${workout.exercises} exercises</span>
+                                    <span><i class="fa-solid fa-users mr-1"></i>${workout.enrolled} enrolled</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editWorkout(${workout.id})" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="deleteWorkout(${workout.id})" class="px-4 py-2 bg-white/5 hover:bg-neon-pink/20 hover:text-neon-pink rounded-lg transition-colors">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function deleteWorkout(id) {
+            if (confirm('Delete this workout program?')) {
+                workouts = workouts.filter(w => w.id !== id);
+                renderWorkouts();
+                showToast('Workout program deleted', 'success');
+            }
+        }
+
+        function editWorkout(id) {
+            showToast('Edit workout feature coming soon!', 'info');
+        }
+
+        function addExerciseField() {
+            const container = document.getElementById('exerciseList');
+            const div = document.createElement('div');
+            div.className = 'flex gap-2';
+            div.innerHTML = `
+                <input type="text" class="form-input flex-1 px-4 py-2 rounded-lg" placeholder="Exercise name">
+                <input type="text" class="form-input w-24 px-4 py-2 rounded-lg" placeholder="Sets">
+                <input type="text" class="form-input w-24 px-4 py-2 rounded-lg" placeholder="Reps">
+                <button onclick="this.parentElement.remove()" class="px-3 py-2 text-neon-pink hover:bg-neon-pink/10 rounded-lg transition-colors">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+
+        // Bookings
+        function renderBookings() {
+            const container = document.getElementById('bookingsList');
+            container.innerHTML = '';
+            
+            bookings.forEach(booking => {
+                const statusColors = {
+                    confirmed: 'bg-neon-green/20 text-neon-green',
+                    pending: 'bg-yellow-500/20 text-yellow-400',
+                    cancelled: 'bg-gray-500/20 text-gray-400'
+                };
+                
+                container.innerHTML += `
+                    <div class="glass-card p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-black font-bold">
+                                ${booking.member.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div>
+                                <div class="font-medium">${booking.member}</div>
+                                <div class="text-sm text-gray-400">${booking.type} with ${booking.trainer}</div>
+                                <div class="text-sm text-gray-500 mt-1">
+                                    <i class="fa-regular fa-calendar mr-1"></i>${booking.date} at ${booking.time}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1 rounded-full text-xs ${statusColors[booking.status]}">${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span>
+                            ${booking.status === 'pending' ? `
+                                <button onclick="confirmBooking(${booking.id})" class="px-4 py-2 bg-neon-green/20 text-neon-green rounded-lg text-sm hover:bg-neon-green/30 transition-colors">Confirm</button>
+                            ` : ''}
+                            <button onclick="cancelBooking(${booking.id})" class="px-4 py-2 bg-white/5 hover:bg-neon-pink/20 hover:text-neon-pink rounded-lg text-sm transition-colors">Cancel</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterBookings(status) {
+            const container = document.getElementById('bookingsList');
+            container.innerHTML = '';
+            
+            const filtered = status === 'all' ? bookings : bookings.filter(b => b.status === status);
+            const statusColors = {
+                confirmed: 'bg-neon-green/20 text-neon-green',
+                pending: 'bg-yellow-500/20 text-yellow-400',
+                cancelled: 'bg-gray-500/20 text-gray-400'
+            };
+            
+            filtered.forEach(booking => {
+                container.innerHTML += `
+                    <div class="glass-card p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-black font-bold">
+                                ${booking.member.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div>
+                                <div class="font-medium">${booking.member}</div>
+                                <div class="text-sm text-gray-400">${booking.type} with ${booking.trainer}</div>
+                                <div class="text-sm text-gray-500 mt-1">
+                                    <i class="fa-regular fa-calendar mr-1"></i>${booking.date} at ${booking.time}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1 rounded-full text-xs ${statusColors[booking.status]}">${booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}</span>
+                            ${booking.status === 'pending' ? `
+                                <button onclick="confirmBooking(${booking.id})" class="px-4 py-2 bg-neon-green/20 text-neon-green rounded-lg text-sm hover:bg-neon-green/30 transition-colors">Confirm</button>
+                            ` : ''}
+                            <button onclick="cancelBooking(${booking.id})" class="px-4 py-2 bg-white/5 hover:bg-neon-pink/20 hover:text-neon-pink rounded-lg text-sm transition-colors">Cancel</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function confirmBooking(id) {
+            const booking = bookings.find(b => b.id === id);
+            booking.status = 'confirmed';
+            renderBookings();
+            updateStats();
+            showToast('Booking confirmed!', 'success');
+        }
+
+        function cancelBooking(id) {
+            const booking = bookings.find(b => b.id === id);
+            booking.status = 'cancelled';
+            renderBookings();
+            showToast('Booking cancelled', 'info');
+        }
+
+        // Notifications
+        function toggleNotifications() {
+            document.getElementById('notificationsPanel').classList.toggle('hidden');
+        }
+
+        function renderNotifications() {
+            const container = document.getElementById('notificationsList');
+            container.innerHTML = '';
+            
+            const typeIcons = {
+                booking: 'fa-calendar-check text-neon-cyan',
+                trainer: 'fa-user-tie text-neon-purple',
+                user: 'fa-user text-neon-green'
+            };
+            
+            notifications.forEach(notif => {
+                container.innerHTML += `
+                    <div class="p-4 hover:bg-white/5 transition-colors cursor-pointer ${notif.read ? 'opacity-60' : ''}">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid ${typeIcons[notif.type]} mt-1"></i>
+                            <div class="flex-1">
+                                <p class="text-sm">${notif.message}</p>
+                                <p class="text-xs text-gray-500 mt-1">${notif.time}</p>
+                            </div>
+                            ${!notif.read ? '<span class="w-2 h-2 bg-neon-cyan rounded-full"></span>' : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function markAllRead() {
+            notifications.forEach(n => n.read = true);
+            renderNotifications();
+            document.querySelector('.notification-dot').style.display = 'none';
+        }
+
+        // Recent Activity
+        function renderRecentActivity() {
+            const container = document.getElementById('recentActivity');
+            const activities = [
+                { icon: 'fa-user-plus', color: 'text-neon-green', bg: 'bg-neon-green/20', text: 'New member registered: Alex Chen', time: '5 minutes ago' },
+                { icon: 'fa-calendar-check', color: 'text-neon-cyan', bg: 'bg-neon-cyan/20', text: 'Booking confirmed: Sarah Smith with Rhen Lewis', time: '15 minutes ago' },
+                { icon: 'fa-dumbbell', color: 'text-neon-purple', bg: 'bg-neon-purple/20', text: 'New workout program created: Power Hour', time: '1 hour ago' },
+                { icon: 'fa-credit-card', color: 'text-neon-pink', bg: 'bg-neon-pink/20', text: 'Payment received: $49 from Mike Johnson', time: '2 hours ago' },
+                { icon: 'fa-user-minus', color: 'text-gray-400', bg: 'bg-gray-500/20', text: 'Member cancelled: Emma Wilson', time: '3 hours ago' },
+            ];
+            
+            container.innerHTML = activities.map(a => `
+                <div class="flex items-center gap-4 p-4 bg-white/5 rounded-xl">
+                    <div class="w-10 h-10 rounded-lg ${a.bg} ${a.color} flex items-center justify-center">
+                        <i class="fa-solid ${a.icon}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm">${a.text}</p>
+                        <p class="text-xs text-gray-500">${a.time}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Monthly Stats
+        function renderMonthlyStats() {
+            const tbody = document.getElementById('monthlyStatsBody');
+            const stats = [
+                { month: 'March 2026', newMembers: 24, sessions: 342, revenue: '$8,450', retention: '92%' },
+                { month: 'February 2026', newMembers: 31, sessions: 389, revenue: '$9,120', retention: '89%' },
+                { month: 'January 2026', newMembers: 28, sessions: 356, revenue: '$8,780', retention: '91%' },
+                { month: 'December 2025', newMembers: 35, sessions: 401, revenue: '$9,850', retention: '87%' },
+            ];
+            
+            tbody.innerHTML = stats.map(s => `
+                <tr>
+                    <td class="px-6 py-4">${s.month}</td>
+                    <td class="px-6 py-4 text-neon-cyan">${s.newMembers}</td>
+                    <td class="px-6 py-4">${s.sessions}</td>
+                    <td class="px-6 py-4 text-neon-green">${s.revenue}</td>
+                    <td class="px-6 py-4">${s.retention}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Charts
+        function initCharts() {
+            // Member Growth Chart
+            const memberCtx = document.getElementById('memberChart').getContext('2d');
+            memberChart = new Chart(memberCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'New Members',
+                        data: [5, 8, 12, 7, 15, 20, 18],
+                        borderColor: '#00f3ff',
+                        backgroundColor: 'rgba(0, 243, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } }
+                    }
+                }
+            });
+
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [2100, 2450, 1890, 2670],
+                        backgroundColor: ['#00f3ff', '#b026ff', '#ff0055', '#00ff88']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#9ca3af' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } }
+                    }
+                }
+            });
+
+            // Membership Distribution
+            const membershipCtx = document.getElementById('membershipChart').getContext('2d');
+            membershipChart = new Chart(membershipCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Basic', 'Premium', 'Elite'],
+                    datasets: [{
+                        data: [35, 45, 20],
+                        backgroundColor: ['#6b7280', '#00f3ff', '#b026ff']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#9ca3af' } }
+                    }
+                }
+            });
+
+            // Trainer Performance
+            const trainerCtx = document.getElementById('trainerChart').getContext('2d');
+            trainerChart = new Chart(trainerCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Sessions', 'Rating', 'Retention', 'Growth', 'Engagement'],
+                    datasets: trainers.slice(0, 3).map((t, i) => ({
+                        label: t.name.split(' ')[0],
+                        data: [t.sessions, t.rating * 20, 85 + i * 5, 70 + i * 10, 80 + i * 5],
+                        borderColor: ['#00f3ff', '#b026ff', '#ff0055'][i],
+                        backgroundColor: ['rgba(0, 243, 255, 0.1)', 'rgba(176, 38, 255, 0.1)', 'rgba(255, 0, 85, 0.1)'][i]
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#9ca3af' } } },
+                    scales: {
+                        r: {
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            pointLabels: { color: '#9ca3af' },
+                            ticks: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Modals
+        function openModal(type) {
+            document.getElementById('modalOverlay').classList.remove('hidden');
+            document.querySelectorAll('.modal-content').forEach(el => el.classList.add('hidden'));
+            
+            if (type === 'addUser') document.getElementById('addUserModal').classList.remove('hidden');
+            if (type === 'addTrainer') document.getElementById('addTrainerModal').classList.remove('hidden');
+            if (type === 'createWorkout') document.getElementById('createWorkoutModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+            document.querySelectorAll('.modal-content').forEach(el => el.classList.add('hidden'));
+        }
+
+        function saveNewUser() {
+            const firstName = document.getElementById('newUserFirstName').value;
+            const lastName = document.getElementById('newUserLastName').value;
+            const email = document.getElementById('newUserEmail').value;
+            const phone = document.getElementById('newUserPhone').value;
+            const plan = document.getElementById('newUserPlan').value;
+            const status = document.getElementById('newUserStatus').value;
+            
+            if (!firstName || !lastName || !email) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            const newUser = {
+                id: users.length + 1,
+                firstName,
+                lastName,
+                email,
+                phone: phone || '+1 000 000 000',
+                plan,
+                status,
+                joined: new Date().toISOString().split('T')[0],
+                lastActive: 'Just now'
+            };
+            
+            users.push(newUser);
+            renderUsers();
+            updateStats();
+            closeModal();
+            showToast('Member created successfully!', 'success');
+            
+            // Clear form
+            document.getElementById('newUserFirstName').value = '';
+            document.getElementById('newUserLastName').value = '';
+            document.getElementById('newUserEmail').value = '';
+            document.getElementById('newUserPhone').value = '';
+        }
+
+        function saveNewTrainer() {
+            const name = document.getElementById('newTrainerName').value;
+            const email = document.getElementById('newTrainerEmail').value;
+            const specialty = document.getElementById('newTrainerSpecialty').value;
+            const bio = document.getElementById('newTrainerBio').value;
+            
+            if (!name || !email) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            const specialtyLabels = {
+                strength: 'POWERLIFTING',
+                cardio: 'HIIT SPECIALIST',
+                yoga: 'YOGA & MOBILITY',
+                bodybuilding: 'BODYBUILDING'
+            };
+            
+            const newTrainer = {
+                id: trainers.length + 1,
+                name,
+                email,
+                specialty,
+                specialtyLabel: specialtyLabels[specialty],
+                bio: bio || 'New trainer at PulseFitness.',
+                available: true,
+                sessions: 0,
+                rating: 5.0
+            };
+            
+            trainers.push(newTrainer);
+            renderTrainers();
+            updateStats();
+            closeModal();
+            showToast('Trainer added successfully!', 'success');
+            
+            document.getElementById('newTrainerName').value = '';
+            document.getElementById('newTrainerEmail').value = '';
+            document.getElementById('newTrainerBio').value = '';
+        }
+
+        function saveWorkout() {
+            const name = document.getElementById('workoutName').value;
+            const category = document.getElementById('workoutCategory').value;
+            const duration = document.getElementById('workoutDuration').value;
+            const description = document.getElementById('workoutDescription').value;
+            
+            if (!name || !duration) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            const newWorkout = {
+                id: workouts.length + 1,
+                name,
+                category,
+                duration: parseInt(duration),
+                exercises: 8,
+                enrolled: 0,
+                description: description || 'New workout program'
+            };
+            
+            workouts.push(newWorkout);
+            renderWorkouts();
+            closeModal();
+            showToast('Workout program created!', 'success');
+            
+            document.getElementById('workoutName').value = '';
+            document.getElementById('workoutDuration').value = '';
+            document.getElementById('workoutDescription').value = '';
+        }
+
+        // Toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
+            
+            msg.textContent = message;
+            
+            if (type === 'success') {
+                icon.className = 'fa-solid fa-check-circle text-neon-green';
+            } else if (type === 'error') {
+                icon.className = 'fa-solid fa-exclamation-circle text-neon-pink';
+            } else {
+                icon.className = 'fa-solid fa-info-circle text-neon-cyan';
+            }
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Settings
+        function saveSettings() {
+            showToast('Settings saved successfully!', 'success');
+        }
+
+        // Report
+        function generateReport() {
+            showToast('Generating report... Download will start shortly.', 'success');
+        }
+
+        // Close modal on overlay click
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Close notifications on outside click
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('notificationsPanel');
+            const bell = e.target.closest('button');
+            if (!panel.contains(e.target) && (!bell || !bell.querySelector('.fa-bell'))) {
+                panel.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
