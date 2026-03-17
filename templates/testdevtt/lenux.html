@@ -1,0 +1,1243 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PulseFitness | The Future of Fitness</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                        },
+                        neon: {
+                            purple: '#b026ff',
+                            cyan: '#00f3ff',
+                            pink: '#ff0055'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        glow: {
+                            'from': { boxShadow: '0 0 10px -10px #00f3ff' },
+                            'to': { boxShadow: '0 0 20px 5px #00f3ff' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f3ff;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .glass-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Text Gradients */
+        .text-gradient {
+            background: linear-gradient(to right, #00f3ff, #b026ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .text-gradient-gold {
+            background: linear-gradient(to right, #ffd700, #ffaa00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Spotlight Effect */
+        .spotlight {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0,243,255,0.15) 0%, rgba(0,0,0,0) 70%);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+        }
+
+        /* 3D Tilt Card */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+        }
+        .tilt-content {
+            transform: translateZ(20px);
+        }
+
+        /* Glitch Effect on Hover */
+        .glitch-hover:hover {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+            color: #00f3ff;
+        }
+        @keyframes glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+
+        /* Loader */
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        .loader-bar {
+            width: 200px;
+            height: 2px;
+            background: #333;
+            position: relative;
+            overflow: hidden;
+        }
+        .loader-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            background: #00f3ff;
+            box-shadow: 0 0 10px #00f3ff;
+            transition: width 0.2s ease;
+        }
+
+        /* Form Styles */
+        .form-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            border-color: #00f3ff;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            outline: none;
+        }
+        .form-label {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Workout Card Animation */
+        .workout-card {
+            transition: all 0.3s ease;
+        }
+        .workout-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 243, 255, 0.2);
+        }
+
+        /* BMI Gauge */
+        .bmi-gauge {
+            position: relative;
+            width: 200px;
+            height: 100px;
+            margin: 0 auto;
+        }
+        .bmi-gauge-bg {
+            width: 200px;
+            height: 100px;
+            border-radius: 100px 100px 0 0;
+            background: conic-gradient(from 180deg at 50% 100%, 
+                #3b82f6 0deg 60deg, 
+                #22c55e 60deg 120deg, 
+                #eab308 120deg 150deg, 
+                #ef4444 150deg 180deg);
+        }
+        .bmi-needle {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            height: 90px;
+            background: white;
+            transform-origin: bottom center;
+            transform: translateX(-50%) rotate(-90deg);
+            transition: transform 0.5s ease;
+            border-radius: 2px;
+        }
+
+        option {
+            background: #1f2937;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-neon-cyan selection:text-black">
+
+    <!-- Loading Screen -->
+    <div id="loader" class="loader-overlay">
+        <div class="text-center">
+            <h1 class="font-display text-4xl font-bold mb-4 tracking-widest">PULSE<span class="text-neon-cyan">FITNESS</span></h1>
+            <div class="loader-bar">
+                <div id="loader-progress" class="loader-progress"></div>
+            </div>
+            <p id="loader-text" class="mt-2 text-xs text-gray-500 font-mono">INITIALIZING SYSTEM...</p>
+        </div>
+    </div>
+
+    <!-- Spotlight Cursor -->
+    <div id="spotlight" class="spotlight hidden md:block"></div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="closeAuthModal()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-8">
+            <div class="glass-card rounded-2xl p-8 relative">
+                <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+                
+                <!-- Login Form -->
+                <div id="loginForm">
+                    <h2 class="font-display text-3xl font-bold mb-6 text-center">MEMBER <span class="text-neon-cyan">ACCESS</span></h2>
+                    <form onsubmit="handleLogin(event)">
+                        <div class="mb-4">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="loginEmail" class="form-input w-full px-4 py-3 rounded-lg" required placeholder="your@email.com">
+                        </div>
+                        <div class="mb-6">
+                            <label class="form-label">Password</label>
+                            <input type="password" id="loginPassword" class="form-input w-full px-4 py-3 rounded-lg" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-neon-cyan text-black font-bold rounded-lg hover:bg-white transition-all mb-4">
+                            LOGIN
+                        </button>
+                        <p class="text-center text-gray-400 text-sm">
+                            Not a member? <a href="#" onclick="showRegister()" class="text-neon-cyan hover:underline">Join now</a>
+                        </p>
+                    </form>
+                </div>
+
+                <!-- Register Form -->
+                <div id="registerForm" class="hidden">
+                    <h2 class="font-display text-3xl font-bold mb-6 text-center">JOIN <span class="text-neon-purple">PULSE</span></h2>
+                    <form onsubmit="handleRegister(event)">
+                        <div class="mb-4">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" id="regName" class="form-input w-full px-4 py-3 rounded-lg" required placeholder="John Doe">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="regEmail" class="form-input w-full px-4 py-3 rounded-lg" required placeholder="your@email.com">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Password</label>
+                            <input type="password" id="regPassword" class="form-input w-full px-4 py-3 rounded-lg" required placeholder="••••••••">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="form-label">Age</label>
+                                <input type="number" id="regAge" class="form-input w-full px-4 py-3 rounded-lg" required placeholder="25">
+                            </div>
+                            <div>
+                                <label class="form-label">Gender</label>
+                                <select id="regGender" class="form-input w-full px-4 py-3 rounded-lg">
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label class="form-label">Height (cm)</label>
+                                <input type="number" id="regHeight" class="form-input w-full px-4 py-3 rounded-lg" required placeholder="175">
+                            </div>
+                            <div>
+                                <label class="form-label">Weight (kg)</label>
+                                <input type="number" id="regWeight" class="form-input w-full px-4 py-3 rounded-lg" required placeholder="70">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-neon-purple text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all mb-4">
+                            CREATE ACCOUNT
+                        </button>
+                        <p class="text-center text-gray-400 text-sm">
+                            Already a member? <a href="#" onclick="showLogin()" class="text-neon-cyan hover:underline">Login</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app">
+        <!-- Landing Page -->
+        <div id="landingPage">
+            <!-- Navigation -->
+            <nav id="navbar" class="fixed w-full z-40 transition-all duration-300 py-4 border-b border-transparent">
+                <div class="container mx-auto px-6 flex justify-between items-center">
+                    <a href="#" class="font-display text-2xl font-bold tracking-tighter flex items-center gap-2 group">
+                        <i class="fa-solid fa-bolt text-neon-cyan group-hover:animate-pulse"></i>
+                        PULSE<span class="text-neon-cyan">FITNESS</span>
+                    </a>
+                    
+                    <div class="hidden md:flex items-center gap-8 font-medium text-sm tracking-wide">
+                        <a href="#programs" class="hover:text-neon-cyan transition-colors">PROGRAMS</a>
+                        <a href="#trainers" class="hover:text-neon-cyan transition-colors">ELITE TEAM</a>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <button onclick="openAuthModal('login')" class="hidden md:block px-6 py-2 border border-neon-cyan text-neon-cyan rounded-full hover:bg-neon-cyan hover:text-black transition-all duration-300 font-bold text-sm tracking-wider">
+                            MEMBER LOGIN
+                        </button>
+                        <button onclick="openAuthModal('register')" class="px-6 py-2 bg-neon-cyan text-black rounded-full hover:bg-white transition-all duration-300 font-bold text-sm tracking-wider shadow-[0_0_15px_rgba(0,243,255,0.5)]">
+                            JOIN NOW
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Hero Section -->
+            <header class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+                <div class="absolute inset-0 z-0">
+                    <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover opacity-40" alt="Gym Background">
+                    <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-[#050505]"></div>
+                </div>
+
+                <div class="container mx-auto px-6 relative z-10 grid md:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-6" id="hero-text">
+                          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-xs font-mono text-neon-cyan mb-4">
+                            <span class="w-2 h-2 rounded-full bg-neon-cyan animate-pulse"></span>
+                            SYSTEM ONLINE: ACCEPTING NEW MEMBERS
+                        </div>
+                        <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-black leading-tight">
+                            REDEFINE <br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-purple">YOUR LIMITS</span>
+                        </h1>
+                        <p class="text-gray-400 text-lg md:text-xl max-w-lg leading-relaxed border-l-2 border-neon-cyan pl-4">
+                            Experience the next evolution of fitness. State-of-the-art bio-hacking equipment, AI-driven coaching, and an atmosphere designed for champions.
+                        </p>
+                        <div class="flex flex-wrap gap-4 pt-4">
+                            <button onclick="openAuthModal('register')" class="group relative px-8 py-4 bg-white text-black font-bold rounded-none overflow-hidden">
+                                <span class="relative z-10 group-hover:text-neon-cyan transition-colors">START TRANSFORMATION</span>
+                                <div class="absolute inset-0 bg-black transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+                            </button>
+                            <button class="px-8 py-4 border border-white/20 hover:border-neon-cyan hover:text-neon-cyan transition-all font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-play"></i> VIRTUAL TOUR
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="hidden md:block relative h-[600px] w-full perspective-1000" id="hero-visual">
+                        <div class="absolute top-10 right-10 w-64 h-64 bg-neon-purple/20 rounded-full blur-[100px] animate-pulse-slow"></div>
+                        <div class="absolute bottom-10 left-10 w-64 h-64 bg-neon-cyan/20 rounded-full blur-[100px] animate-pulse-slow" style="animation-delay: 1s;"></div>
+
+                        <div class="tilt-card absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[550px] glass-card rounded-2xl border border-white/10 p-1 transition-transform duration-100 ease-out">
+                        <div class="w-full h-full bg-black rounded-xl overflow-hidden relative group">
+                                <img src="{% static 'testdevtt/images/marco.png' %}" class="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700" alt="Athlete">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                                
+                                <div class="absolute top-6 right-6 flex flex-col gap-2 items-end tilt-content">
+                                    <div class="bg-black/50 backdrop-blur-md border border-white/10 px-3 py-1 rounded text-xs font-mono text-neon-cyan">
+                                        HR: <span id="live-hr">142</span> BPM
+                                    </div>
+                                    <div class="bg-black/50 backdrop-blur-md border border-white/10 px-3 py-1 rounded text-xs font-mono text-neon-purple">
+                                        CAL: <span id="live-cal">450</span> KCAL
+                                    </div>
+                                </div>
+
+                                <div class="absolute bottom-6 left-6 right-6 tilt-content">
+                                    <h3 class="font-display text-2xl font-bold mb-1">DAILY PULSE</h3>
+                                    <p class="text-gray-400 text-sm mb-4">Your personalized AI workout is ready.</p>
+                                    <div class="h-1 w-full bg-gray-800 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-neon-cyan to-neon-purple w-[75%] animate-pulse"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Programs Section -->
+            <section id="programs" class="py-24 bg-zinc-900/30 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-neon-cyan/5 to-transparent pointer-events-none"></div>
+                <div class="container mx-auto px-6 relative z-10">
+                    <div class="text-center max-w-3xl mx-auto mb-20">
+                        <span class="text-neon-cyan font-mono text-sm tracking-widest uppercase mb-2 block">Curated Pathways</span>
+                        <h2 class="font-display text-4xl md:text-6xl font-bold mb-6">CHOOSE YOUR <span class="text-gradient">PROTOCOL</span></h2>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="glass-card p-8 rounded-2xl relative group hover:border-neon-cyan/50 transition-all duration-300">
+                            <div class="absolute -top-4 -right-4 bg-neon-cyan text-black font-bold px-4 py-1 rounded text-sm transform rotate-3 group-hover:rotate-0 transition-transform">POPULAR</div>
+                            <h3 class="font-display text-2xl font-bold mb-2">SHRED PROTOCOL</h3>
+                            <p class="text-gray-400 text-sm mb-6">High intensity metabolic conditioning focused on rapid fat loss.</p>
+                            <button onclick="openAuthModal('register')" class="w-full py-3 border border-white/20 hover:bg-neon-cyan hover:text-black hover:border-neon-cyan transition-all font-bold rounded uppercase tracking-wider text-sm">
+                                Select Plan
+                            </button>
+                        </div>
+                        <div class="glass-card p-8 rounded-2xl relative group border-neon-purple/30 hover:border-neon-purple transition-all duration-300 transform md:-translate-y-4 bg-zinc-900/50">
+                            <div class="absolute -top-4 -right-4 bg-neon-purple text-white font-bold px-4 py-1 rounded text-sm transform -rotate-3 group-hover:rotate-0 transition-transform">ELITE</div>
+                            <h3 class="font-display text-2xl font-bold mb-2 text-neon-purple">HYPERTROPHY X</h3>
+                            <p class="text-gray-400 text-sm mb-6">Maximum muscle growth through periodized overload and recovery.</p>
+                            <button onclick="openAuthModal('register')" class="w-full py-3 bg-neon-purple text-white hover:bg-white hover:text-black transition-all font-bold rounded uppercase tracking-wider text-sm shadow-[0_0_20px_rgba(176,38,255,0.3)]">
+                                Select Plan
+                            </button>
+                        </div>
+                        <div class="glass-card p-8 rounded-2xl relative group hover:border-white/50 transition-all duration-300">
+                            <h3 class="font-display text-2xl font-bold mb-2">ATHLETE REBUILD</h3>
+                            <p class="text-gray-400 text-sm mb-6">Mobility, injury prevention, and functional strength for longevity.</p>
+                            <button onclick="openAuthModal('register')" class="w-full py-3 border border-white/20 hover:bg-white hover:text-black hover:border-white transition-all font-bold rounded uppercase tracking-wider text-sm">
+                                Select Plan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trainers Section -->
+            <section id="trainers" class="py-24 overflow-hidden">
+                <div class="container mx-auto px-6 mb-12">
+                    <h2 class="font-display text-4xl font-bold mb-2">THE TRAINERS</h2>
+                    <p class="text-gray-400">Learn from the best in the industry.</p>
+                </div>
+                <div class="flex gap-6 overflow-x-auto px-6 pb-12" style="scrollbar-width: none;">
+                    <!-- Trainer Cards -->
+                        <div class="min-w-[300px] glass-card rounded-2xl overflow-hidden group">
+                        <div class="h-[300px] overflow-hidden relative bg-gradient-to-br from-blue-900 to-black">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <img src="{% static 'testdevtt/images/aron.png' %}" class="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700" alt="Trainer Aron">
+                            </div>
+                            <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black to-transparent">
+                                <h3 class="text-xl font-bold font-display">Aron 'The Destroyer' Jay</h3>
+                                <p class="text-neon-cyan text-sm tracking-widest">POWERLIFTING</p>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-gray-400 text-sm">Specialist in strength training and powerlifting competitions.</p>
+                        </div>
+                    </div>
+                    <div class="min-w-[300px] glass-card rounded-2xl overflow-hidden group">
+                        <div class="h-[300px] overflow-hidden relative bg-gradient-to-br from-purple-900 to-black">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <img src="{% static 'testdevtt/images/jk.png' %}" class="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700" alt="Trainer Justin">
+                            </div>
+                            <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black to-transparent">
+                                <h3 class="text-xl font-bold font-display">Justin 'The Smasher' kerby</h3>
+                                <p class="text-neon-purple text-sm tracking-widest">HIIT SPECIALIST</p>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-gray-400 text-sm">High-intensity interval training and metabolic conditioning expert.</p>
+                        </div>
+                    </div>
+                    <div class="min-w-[300px] glass-card rounded-2xl overflow-hidden group">
+                        <div class="h-[300px] overflow-hidden relative bg-gradient-to-br from-green-900 to-black">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <img src="{% static 'testdevtt/images/marcos.png' %}" class="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700" alt="Trainer Marco">
+                            </div>
+                            <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black to-transparent">
+                                <h3 class="text-xl font-bold font-display">Jan 'Muscle Man' Marco</h3>
+                                <p class="text-green-400 text-sm tracking-widest">BODYBUILDING</p>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-gray-400 text-sm">Bodybuilding coach focused on hypertrophy and aesthetics.</p>
+                        </div>
+                    </div>
+                    <div class="min-w-[300px] glass-card rounded-2xl overflow-hidden group">
+                        <div class="h-[300px] overflow-hidden relative bg-gradient-to-br from-pink-900 to-black">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <img src="{% static 'testdevtt/images/rhen.png' %}" class="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700" alt="Trainer Rhen">
+                            </div>
+                            <div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black to-transparent">
+                                <h3 class="text-xl font-bold font-display">Rhen 'Eruption' Lewis</h3>
+                                <p class="text-pink-400 text-sm tracking-widest">YOGA & MOBILITY</p>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-gray-400 text-sm">Yoga instructor and mobility specialist for recovery.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Dashboard (Hidden by default) -->
+        <div id="dashboard" class="hidden">
+            <!-- Dashboard Sidebar -->
+            <div class="dashboard-grid">
+                <aside class="bg-zinc-900/50 border-r border-white/10 p-6 hidden md:block">
+                    <div class="mb-8">
+                        <a href="#" class="font-display text-2xl font-bold tracking-tighter flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-neon-cyan"></i>
+                            PULSE<span class="text-neon-cyan">FITNESS</span>
+                        </a>
+                    </div>
+                    
+                    <nav class="space-y-2">
+                        <button onclick="showDashboardSection('overview')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/5 transition-colors flex items-center gap-3 text-neon-cyan bg-white/5">
+                            <i class="fa-solid fa-chart-line"></i> Overview
+                        </button>
+                        <button onclick="showDashboardSection('bmi')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/5 transition-colors flex items-center gap-3 text-gray-300">
+                            <i class="fa-solid fa-weight-scale"></i> BMI Calculator
+                        </button>
+                        <button onclick="showDashboardSection('trainers')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/5 transition-colors flex items-center gap-3 text-gray-300">
+                            <i class="fa-solid fa-users"></i> Find Trainer
+                        </button>
+                        <button onclick="showDashboardSection('workouts')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/5 transition-colors flex items-center gap-3 text-gray-300">
+                            <i class="fa-solid fa-dumbbell"></i> Workout Generator
+                        </button>
+                        <button onclick="showDashboardSection('profile')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/5 transition-colors flex items-center gap-3 text-gray-300">
+                            <i class="fa-solid fa-user"></i> Profile
+                        </button>
+                    </nav>
+
+                    <div class="mt-auto pt-8 border-t border-white/10">
+                        <button onclick="logout()" class="w-full text-left px-4 py-3 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors flex items-center gap-3">
+                            <i class="fa-solid fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Mobile Header -->
+                <div class="md:hidden fixed top-0 left-0 right-0 bg-zinc-900/95 z-30 p-4 border-b border-white/10 flex justify-between items-center">
+                    <span class="font-display font-bold">PULSE<span class="text-neon-cyan">FITNESS</span></span>
+                    <button onclick="toggleMobileMenu()" class="text-white">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Main Content -->
+                <main class="p-6 md:p-8 pt-20 md:pt-8 overflow-y-auto">
+                    <!-- Welcome Header -->
+                    <div class="mb-8 flex justify-between items-center">
+                        <div>
+                            <h1 class="font-display text-3xl font-bold">Welcome back, <span id="userName" class="text-neon-cyan">User</span></h1>
+                            <p class="text-gray-400 mt-1">Ready to crush your goals today?</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="text-right hidden sm:block">
+                                <div class="text-sm text-gray-400">Current Streak</div>
+                                <div class="text-2xl font-bold text-neon-purple">5 Days 🔥</div>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center">
+                                <i class="fa-solid fa-user text-black text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overview Section -->
+                    <div id="section-overview" class="dashboard-section">
+                        <div class="grid md:grid-cols-3 gap-6 mb-8">
+                            <div class="glass-card p-6 rounded-2xl">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-gray-400 text-sm uppercase tracking-wider">Current BMI</h3>
+                                    <i class="fa-solid fa-weight-scale text-neon-cyan"></i>
+                                </div>
+                                <div class="text-3xl font-bold mb-2" id="dashboardBMI">--</div>
+                                <div class="text-sm text-gray-400" id="dashboardBMICategory">Calculate your BMI</div>
+                            </div>
+                            <div class="glass-card p-6 rounded-2xl">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-gray-400 text-sm uppercase tracking-wider">Workouts</h3>
+                                    <i class="fa-solid fa-dumbbell text-neon-purple"></i>
+                                </div>
+                                <div class="text-3xl font-bold mb-2">12</div>
+                                <div class="text-sm text-gray-400">Completed this month</div>
+                            </div>
+                            <div class="glass-card p-6 rounded-2xl">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-gray-400 text-sm uppercase tracking-wider">Calories Burned</h3>
+                                    <i class="fa-solid fa-fire text-orange-500"></i>
+                                </div>
+                                <div class="text-3xl font-bold mb-2">8,450</div>
+                                <div class="text-sm text-gray-400">Total kcal this month</div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-6 rounded-2xl">
+                            <h3 class="font-display text-xl font-bold mb-4">Quick Actions</h3>
+                            <div class="grid sm:grid-cols-2 gap-4">
+                                <button onclick="showDashboardSection('bmi')" class="p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors text-left flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-neon-cyan/20 flex items-center justify-center text-neon-cyan">
+                                        <i class="fa-solid fa-calculator"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold">Calculate BMI</div>
+                                        <div class="text-sm text-gray-400">Check your body metrics</div>
+                                    </div>
+                                </button>
+                                <button onclick="showDashboardSection('workouts')" class="p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors text-left flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-neon-purple/20 flex items-center justify-center text-neon-purple">
+                                        <i class="fa-solid fa-bolt"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold">Generate Workout</div>
+                                        <div class="text-sm text-gray-400">Get a personalized plan</div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BMI Calculator Section -->
+                    <div id="section-bmi" class="dashboard-section hidden">
+                        <div class="max-w-2xl mx-auto">
+                            <h2 class="font-display text-3xl font-bold mb-6">BMI <span class="text-neon-cyan">CALCULATOR</span></h2>
+                            
+                            <div class="glass-card p-8 rounded-2xl mb-6">
+                                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                                    <div>
+                                        <label class="form-label">Height (cm)</label>
+                                        <input type="number" id="bmiHeight" class="form-input w-full px-4 py-3 rounded-lg" placeholder="175">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Weight (kg)</label>
+                                        <input type="number" id="bmiWeight" class="form-input w-full px-4 py-3 rounded-lg" placeholder="70">
+                                    </div>
+                                </div>
+                                <button onclick="calculateBMI()" class="w-full py-3 bg-neon-cyan text-black font-bold rounded-lg hover:bg-white transition-all">
+                                    CALCULATE BMI
+                                </button>
+                            </div>
+
+                            <div id="bmiResult" class="glass-card p-8 rounded-2xl hidden">
+                                <div class="text-center mb-6">
+                                    <div class="text-5xl font-bold mb-2" id="bmiValue">22.5</div>
+                                    <div class="text-xl text-neon-cyan" id="bmiCategory">Normal Weight</div>
+                                </div>
+                                
+                                <div class="bmi-gauge mb-6">
+                                    <div class="bmi-gauge-bg"></div>
+                                    <div class="bmi-needle" id="bmiNeedle"></div>
+                                    <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white rounded-full"></div>
+                                </div>
+
+                                <div class="grid grid-cols-4 gap-2 text-xs text-center mb-6">
+                                    <div class="p-2 rounded bg-blue-500/20 text-blue-400">Underweight<br>&lt;18.5</div>
+                                    <div class="p-2 rounded bg-green-500/20 text-green-400">Normal<br>18.5-24.9</div>
+                                    <div class="p-2 rounded bg-yellow-500/20 text-yellow-400">Overweight<br>25-29.9</div>
+                                    <div class="p-2 rounded bg-red-500/20 text-red-400">Obese<br>≥30</div>
+                                </div>
+
+                                <div class="bg-white/5 p-4 rounded-lg">
+                                    <h4 class="font-bold mb-2">Recommendation:</h4>
+                                    <p class="text-gray-400 text-sm" id="bmiRecommendation">Based on your BMI, we recommend maintaining your current lifestyle with regular exercise.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trainers Section -->
+                    <div id="section-trainers" class="dashboard-section hidden">
+                        <h2 class="font-display text-3xl font-bold mb-6">FIND YOUR <span class="text-neon-purple">TRAINER</span></h2>
+                        
+                        <div class="mb-6 flex gap-2 flex-wrap">
+                            <button onclick="filterTrainers('all')" class="px-4 py-2 rounded-full bg-neon-cyan text-black font-bold text-sm">All</button>
+                            <button onclick="filterTrainers('strength')" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-sm transition-colors">Strength</button>
+                            <button onclick="filterTrainers('cardio')" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-sm transition-colors">Cardio</button>
+                            <button onclick="filterTrainers('yoga')" class="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-sm transition-colors">Yoga</button>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6" id="trainersList">
+                            <!-- Trainer cards will be populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Workout Generator Section -->
+                    <div id="section-workouts" class="dashboard-section hidden">
+                        <h2 class="font-display text-3xl font-bold mb-6">WORKOUT <span class="text-neon-purple">GENERATOR</span></h2>
+                        
+                        <div class="glass-card p-6 rounded-2xl mb-6">
+                            <div class="grid md:grid-cols-3 gap-4 mb-4">
+                                <div>
+                                    <label class="form-label">Goal</label>
+                                    <select id="workoutGoal" class="form-input w-full px-4 py-3 rounded-lg">
+                                        <option value="cardio">Cardio / Fat Loss</option>
+                                        <option value="strength" class>Strength / Muscle</option>
+                                        <option value="endurance">Endurance</option>
+                                        <option value="flexibility">Flexibility / Recovery</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">Duration</label>
+                                    <select id="workoutDuration" class="form-input w-full px-4 py-3 rounded-lg">
+                                        <option value="15">15 minutes</option>
+                                        <option value="30">30 minutes</option>
+                                        <option value="45">45 minutes</option>
+                                        <option value="60">60 minutes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">Intensity</label>
+                                    <select id="workoutIntensity" class="form-input w-full px-4 py-3 rounded-lg">
+                                        <option value="beginner">Beginner</option>
+                                        <option value="intermediate">Intermediate</option>
+                                        <option value="advanced">Advanced</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button onclick="generateWorkout()" class="w-full py-3 bg-neon-purple text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all">
+                                GENERATE WORKOUT
+                            </button>
+                        </div>
+
+                        <div id="workoutResult" class="hidden">
+                            <div class="glass-card p-6 rounded-2xl">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="font-display text-2xl font-bold" id="workoutTitle">HIIT Cardio Blast</h3>
+                                    <div class="flex gap-2">
+                                        <span class="px-3 py-1 rounded-full bg-neon-cyan/20 text-neon-cyan text-sm" id="workoutDurationDisplay">30 min</span>
+                                        <span class="px-3 py-1 rounded-full bg-neon-purple/20 text-neon-purple text-sm" id="workoutIntensityDisplay">Intermediate</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4" id="workoutExercises">
+                                    <!-- Exercises will be populated here -->
+                                </div>
+
+                                <div class="mt-6 p-4 bg-white/5 rounded-lg">
+                                    <h4 class="font-bold mb-2 text-neon-cyan">Coach's Note:</h4>
+                                    <p class="text-gray-400 text-sm" id="workoutNote">Based on your BMI and goals, this workout is optimized for maximum fat burning while preserving muscle mass.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Section -->
+                    <div id="section-profile" class="dashboard-section hidden">
+                        <h2 class="font-display text-3xl font-bold mb-6">YOUR <span class="text-neon-cyan">PROFILE</span></h2>
+                        <div class="glass-card p-8 rounded-2xl max-w-2xl">
+                            <div class="flex items-center gap-6 mb-8">
+                                <div class="w-24 h-24 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-3xl font-bold text-black">
+                                    <span id="profileInitials">JD</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold" id="profileName">John Doe</h3>
+                                    <p class="text-gray-400" id="profileEmail">john@example.com</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="form-label">Age</label>
+                                    <input type="number" id="profileAge" class="form-input w-full px-4 py-3 rounded-lg" readonly>
+                                </div>
+                                <div>
+                                    <label class="form-label">Gender</label>
+                                    <input type="text" id="profileGender" class="form-input w-full px-4 py-3 rounded-lg" readonly>
+                                </div>
+                                <div>
+                                    <label class="form-label">Height (cm)</label>
+                                    <input type="number" id="profileHeight" class="form-input w-full px-4 py-3 rounded-lg" readonly>
+                                </div>
+                                <div>
+                                    <label class="form-label">Weight (kg)</label>
+                                    <input type="number" id="profileWeight" class="form-input w-full px-4 py-3 rounded-lg" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global State
+        let currentUser = null;
+        let trainers = [
+            {
+                id: 1,
+                name: "Aron 'The Destroyer' Jay",
+                specialty: "strength",
+                specialtyLabel: "POWERLIFTING",
+                color: "blue",
+                description: "Specialist in strength training and powerlifting competitions. 10+ years experience.",
+                available: true
+            },
+            {
+                id: 2,
+                name: "Justin 'The Smasher' kerby",
+                specialty: "cardio",
+                specialtyLabel: "HIIT SPECIALIST",
+                color: "purple",
+                description: "High-intensity interval training and metabolic conditioning expert.",
+                available: true
+            },
+            {
+                id: 3,
+                name: "Jan 'Muscle Man' Marco",
+                specialty: "strength",
+                specialtyLabel: "BODYBUILDING",
+                color: "green",
+                description: "Bodybuilding coach focused on hypertrophy and aesthetics.",
+                available: false
+            },
+            {
+                id: 4,
+                name: "Rhen 'Eruption' Lewis    ",
+                specialty: "yoga",
+                specialtyLabel: "YOGA & MOBILITY",
+                color: "pink",
+                description: "Yoga instructor and mobility specialist for recovery.",
+                available: true
+            }
+        ];
+
+        // Loader
+        window.addEventListener('load', () => {
+            const progress = document.getElementById('loader-progress');
+            const text = document.getElementById('loader-text');
+            const loader = document.getElementById('loader');
+            let width = 0;
+            
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    text.innerText = "SYSTEM READY";
+                    setTimeout(() => {
+                        loader.style.opacity = '0';
+                        setTimeout(() => {
+                            loader.style.display = 'none';
+                        }, 500);
+                    }, 500);
+                } else {
+                    width += Math.random() * 10;
+                    if(width > 100) width = 100;
+                    progress.style.width = width + '%';
+                    if(width > 30) text.innerText = "LOADING ASSETS...";
+                    if(width > 70) text.innerText = "OPTIMIZING EXPERIENCE...";
+                }
+            }, 100);
+        });
+
+        // Spotlight Effect
+        const spotlight = document.getElementById('spotlight');
+        document.addEventListener('mousemove', (e) => {
+            spotlight.style.left = e.pageX + 'px';
+            spotlight.style.top = e.pageY + 'px';
+        });
+
+        // Auth Modal Functions
+        function openAuthModal(type) {
+            document.getElementById('authModal').classList.remove('hidden');
+            if (type === 'login') {
+                showLogin();
+            } else {
+                showRegister();
+            }
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+        }
+
+        function showRegister() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+        }
+
+        // Auth Handlers
+        function handleRegister(e) {
+            e.preventDefault();
+            const user = {
+                name: document.getElementById('regName').value,
+                email: document.getElementById('regEmail').value,
+                password: document.getElementById('regPassword').value,
+                age: document.getElementById('regAge').value,
+                gender: document.getElementById('regGender').value,
+                height: document.getElementById('regHeight').value,
+                weight: document.getElementById('regWeight').value
+            };
+            
+            // Store user (in memory for demo)
+            currentUser = user;
+            localStorage.setItem('pulseUser', JSON.stringify(user));
+            
+            closeAuthModal();
+            showDashboard();
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Demo login - accept any or check stored
+            const stored = localStorage.getItem('pulseUser');
+            if (stored) {
+                currentUser = JSON.parse(stored);
+                if (currentUser.email === email) {
+                    closeAuthModal();
+                    showDashboard();
+                    return;
+                }
+            }
+            
+            // Demo auto-login for testing
+            currentUser = {
+                name: "Demo User",
+                email: email,
+                age: 25,
+                gender: "male",
+                height: 175,
+                weight: 70
+            };
+            closeAuthModal();
+            showDashboard();
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('pulseUser');
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('landingPage').classList.remove('hidden');
+            document.getElementById('navbar').classList.remove('hidden');
+        }
+
+        // Dashboard Functions
+        function showDashboard() {
+            document.getElementById('landingPage').classList.add('hidden');
+            document.getElementById('navbar').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            
+            // Update user info
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileEmail').textContent = currentUser.email;
+            document.getElementById('profileInitials').textContent = currentUser.name.split(' ').map(n => n[0]).join('');
+            document.getElementById('profileAge').value = currentUser.age;
+            document.getElementById('profileGender').value = currentUser.gender;
+            document.getElementById('profileHeight').value = currentUser.height;
+            document.getElementById('profileWeight').value = currentUser.weight;
+            
+            // Pre-fill BMI calculator
+            document.getElementById('bmiHeight').value = currentUser.height;
+            document.getElementById('bmiWeight').value = currentUser.weight;
+            
+            // Calculate initial BMI
+            calculateBMI();
+            
+            // Load trainers
+            renderTrainers('all');
+        }
+
+        function showDashboardSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.dashboard-section').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // Show selected
+            document.getElementById('section-' + section).classList.remove('hidden');
+            
+            // Update nav active state
+            document.querySelectorAll('aside nav button').forEach(btn => {
+                btn.classList.remove('text-neon-cyan', 'bg-white/5');
+                btn.classList.add('text-gray-300');
+            });
+            event.target.classList.remove('text-gray-300');
+            event.target.classList.add('text-neon-cyan', 'bg-white/5');
+        }
+
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('aside');
+            sidebar.classList.toggle('hidden');
+            sidebar.classList.toggle('fixed');
+            sidebar.classList.toggle('inset-0');
+            sidebar.classList.toggle('z-40');
+            sidebar.classList.toggle('bg-zinc-900');
+        }
+
+        // BMI Calculator
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('bmiHeight').value);
+            const weight = parseFloat(document.getElementById('bmiWeight').value);
+            
+            if (!height || !weight) return;
+            
+            const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
+            const resultDiv = document.getElementById('bmiResult');
+            resultDiv.classList.remove('hidden');
+            
+            document.getElementById('bmiValue').textContent = bmi;
+            document.getElementById('dashboardBMI').textContent = bmi;
+            
+            let category, color, recommendation, angle;
+            
+            if (bmi < 18.5) {
+                category = 'Underweight';
+                color = 'text-blue-400';
+                recommendation = 'Focus on strength training and caloric surplus. Consider working with a nutritionist to gain muscle mass safely.';
+                angle = -60;
+            } else if (bmi < 25) {
+                category = 'Normal Weight';
+                color = 'text-green-400';
+                recommendation = 'Great job! Maintain your current lifestyle with regular exercise and balanced nutrition.';
+                angle = -20;
+            } else if (bmi < 30) {
+                category = 'Overweight';
+                color = 'text-yellow-400';
+                recommendation = 'Focus on cardio exercises and slight caloric deficit. Our HIIT programs are perfect for you.';
+                angle = 20;
+            } else {
+                category = 'Obese';
+                color = 'text-red-400';
+                recommendation = 'Start with low-impact cardio and gradually increase intensity. Consult with a trainer for a safe plan.';
+                angle = 60;
+            }
+            
+            document.getElementById('bmiCategory').textContent = category;
+            document.getElementById('bmiCategory').className = 'text-xl ' + color;
+            document.getElementById('dashboardBMICategory').textContent = category;
+            document.getElementById('dashboardBMICategory').className = 'text-sm ' + color;
+            document.getElementById('bmiRecommendation').textContent = recommendation;
+            document.getElementById('bmiNeedle').style.transform = `translateX(-50%) rotate(${angle}deg)`;
+            
+            // Update user data
+            currentUser.height = height;
+            currentUser.weight = weight;
+            currentUser.bmi = bmi;
+        }
+
+        // Trainer Functions
+        function renderTrainers(filter) {
+            const container = document.getElementById('trainersList');
+            container.innerHTML = '';
+            
+            const filtered = filter === 'all' ? trainers : trainers.filter(t => t.specialty === filter);
+            
+            filtered.forEach(trainer => {
+                const card = document.createElement('div');
+                card.className = 'glass-card p-6 rounded-2xl flex gap-4 items-start';
+                card.innerHTML = `
+                    <div class="w-20 h-20 rounded-full bg-${trainer.color}-500/20 flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-user text-3xl text-${trainer.color}-400"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="font-bold text-lg">${trainer.name}</h3>
+                                <span class="text-${trainer.color}-400 text-sm">${trainer.specialtyLabel}</span>
+                            </div>
+                            ${trainer.available ? 
+                                '<span class="px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs">Available</span>' : 
+                                '<span class="px-2 py-1 rounded-full bg-red-500/20 text-red-400 text-xs">Booked</span>'
+                            }
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">${trainer.description}</p>
+                        <button onclick="bookTrainer(${trainer.id})" class="px-4 py-2 bg-neon-cyan text-black rounded-lg font-bold text-sm hover:bg-white transition-colors ${!trainer.available ? 'opacity-50 cursor-not-allowed' : ''}" ${!trainer.available ? 'disabled' : ''}>
+                            ${trainer.available ? 'Book Session' : 'Waitlist'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterTrainers(type) {
+            renderTrainers(type);
+        }
+
+        function bookTrainer(id) {
+            const trainer = trainers.find(t => t.id === id);
+            alert(`Booking request sent to ${trainer.name}! They will contact you shortly.`);
+        }
+
+        // Workout Generator
+        function generateWorkout() {
+            const goal = document.getElementById('workoutGoal').value;
+            const duration = document.getElementById('workoutDuration').value;
+            const intensity = document.getElementById('workoutIntensity').value;
+            
+            const exercises = getExercises(goal, intensity);
+            const selectedExercises = selectExercises(exercises, duration);
+            
+            document.getElementById('workoutResult').classList.remove('hidden');
+            document.getElementById('workoutDurationDisplay').textContent = duration + ' min';
+            document.getElementById('workoutIntensityDisplay').textContent = intensity.charAt(0).toUpperCase() + intensity.slice(1);
+            
+            const titles = {
+                cardio: 'Cardio Fat Burner',
+                strength: 'Strength Builder',
+                endurance: 'Endurance Challenge',
+                flexibility: 'Recovery & Mobility'
+            };
+            document.getElementById('workoutTitle').textContent = titles[goal];
+            
+            const container = document.getElementById('workoutExercises');
+            container.innerHTML = '';
+            
+            selectedExercises.forEach((ex, idx) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-4 p-4 bg-white/5 rounded-lg workout-card';
+                div.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-neon-cyan/20 flex items-center justify-center text-neon-cyan font-bold">
+                        ${idx + 1}
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold">${ex.name}</h4>
+                        <p class="text-sm text-gray-400">${ex.sets} sets × ${ex.reps}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-neon-purple font-mono">${ex.duration}min</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            
+            // Personalized note based on BMI
+            let note = '';
+            if (currentUser.bmi) {
+                if (currentUser.bmi < 18.5) {
+                    note = `Based on your BMI of ${currentUser.bmi}, focus on controlled movements and progressive overload to build muscle mass.`;
+                } else if (currentUser.bmi > 25) {
+                    note = `With your BMI of ${currentUser.bmi}, this workout is optimized for calorie burn while maintaining muscle. Stay consistent!`;
+                } else {
+                    note = `Your BMI of ${currentUser.bmi} is in the healthy range. This workout will help you maintain and improve your fitness level.`;
+                }
+            } else {
+                note = 'Complete your BMI calculation for personalized workout recommendations.';
+            }
+            document.getElementById('workoutNote').textContent = note;
+        }
+
+        function getExercises(goal, intensity) {
+            const exerciseDB = {
+                cardio: [
+                    { name: 'Jumping Jacks', sets: 3, reps: '45 sec', duration: 2 },
+                    { name: 'High Knees', sets: 3, reps: '30 sec', duration: 2 },
+                    { name: 'Burpees', sets: 3, reps: '10-15', duration: 3 },
+                    { name: 'Mountain Climbers', sets: 3, reps: '40 sec', duration: 2 },
+                    { name: 'Jump Rope', sets: 4, reps: '1 min', duration: 5 },
+                    { name: 'Sprint Intervals', sets: 6, reps: '30 sec', duration: 8 }
+                ],
+                strength: [
+                    { name: 'Push-ups', sets: 4, reps: '8-12', duration: 3 },
+                    { name: 'Squats', sets: 4, reps: '10-15', duration: 4 },
+                    { name: 'Lunges', sets: 3, reps: '10 each', duration: 3 },
+                    { name: 'Plank', sets: 3, reps: '45 sec', duration: 2 },
+                    { name: 'Dumbbell Rows', sets: 3, reps: '12 each', duration: 4 },
+                    { name: 'Deadlifts', sets: 4, reps: '8-10', duration: 5 }
+                ],
+                endurance: [
+                    { name: 'Long Distance Run', sets: 1, reps: 'Steady pace', duration: 20 },
+                    { name: 'Cycling', sets: 1, reps: 'Moderate', duration: 15 },
+                    { name: 'Rowing', sets: 5, reps: '500m', duration: 10 },
+                    { name: 'Stair Climbing', sets: 3, reps: '5 min', duration: 15 }
+                ],
+                flexibility: [
+                    { name: 'Sun Salutation', sets: 5, reps: 'Flow', duration: 10 },
+                    { name: 'Hip Flexor Stretch', sets: 2, reps: '30 sec each', duration: 2 },
+                    { name: 'Child\'s Pose', sets: 3, reps: '1 min', duration: 3 },
+                    { name: 'Cat-Cow Stretch', sets: 3, reps: '10 reps', duration: 3 },
+                    { name: 'Foam Rolling', sets: 1, reps: 'Full body', duration: 10 }
+                ]
+            };
+            
+            return exerciseDB[goal] || exerciseDB.cardio;
+        }
+
+        function selectExercises(exercises, duration) {
+            const count = Math.floor(duration / 5); // Approx 5 min per exercise
+            const shuffled = [...exercises].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, Math.max(3, count));
+        }
+
+        // Live Data Simulation
+        setInterval(() => {
+            const hr = document.getElementById('live-hr');
+            const cal = document.getElementById('live-cal');
+            if (hr && cal) {
+                let currentHr = parseInt(hr.innerText);
+                let currentCal = parseInt(cal.innerText);
+                currentHr += Math.floor(Math.random() * 5) - 2;
+                currentCal += Math.floor(Math.random() * 3);
+                if(currentHr > 180) currentHr = 180;
+                if(currentHr < 60) currentHr = 60;
+                hr.innerText = currentHr;
+                cal.innerText = currentCal;
+            }
+        }, 2000);
+    </script>
+</body>
+</html> 
